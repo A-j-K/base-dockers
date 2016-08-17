@@ -165,6 +165,17 @@ RUN echo "extension=memcached.so" > $PHP_INI_DIR/conf.d/99-memcached.ini
 WORKDIR /
 RUN rm -rf /tmp/build
 
+RUN apt-get install -y librabbitmq-dev librabbitmq1
+RUN mkdir -p /tmp/build
+COPY dist/pecl-php-amqp.zip /tmp/build/pecl-php-amqp.zip
+WORKDIR /tmp/build
+RUN unzip pecl-php-amqp.zip && rm pecl-php-amqp.zip
+WORKDIR /tmp/build/php-amqp-1.7.1
+RUN phpize && ./configure && make && make install
+RUN echo "extension=amqp.so" > $PHP_INI_DIR/conf.d/99-amqp.ini
+WORKDIR /
+RUN rm -rf /tmp/build
+
 # Clean up.
 RUN apt-get remove -y $DEPS_TEMP \
 	&& apt-get autoremove -y \
