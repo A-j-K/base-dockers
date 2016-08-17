@@ -32,6 +32,7 @@ ENV DEPS \
 	libxml2 \
 	xz-utils \
 	vim \
+	perl \
 	mlocate \
 	wget \
 	unzip \
@@ -47,9 +48,12 @@ ENV DEPS \
 	libmemcached-dev \
 	libev-dev \
 	apache2-bin \
+	apache2-dev \
 	apache2.2-common
 
 RUN apt-get update && apt-get install -y $DEPS $DEPS_TEMP --no-install-recommends
+
+RUN curl -sSL https://github.com/php/php-src/archive/php-$PHP_VER.zip > /var/tmp/php-$PHP_VER.zip 
 
 ENV APACHE_CONF_DIR /etc/apache2
 ENV APACHE_ENVVARS $APACHE_CONF_DIR/envvars
@@ -75,27 +79,28 @@ RUN set -ex \
 	&& ln -sfT /dev/stdout "$APACHE_LOG_DIR/access.log" \
 	&& ln -sfT /dev/stdout "$APACHE_LOG_DIR/other_vhosts_access.log"
 
-RUN { \
-		echo '<FilesMatch \.php$>'; \
-		echo '\tSetHandler application/x-httpd-php'; \
-		echo '</FilesMatch>'; \
-		echo; \
-		echo 'DirectoryIndex disabled'; \
-		echo 'DirectoryIndex index.php index.html'; \
-		echo; \
-		echo '<Directory /var/www/>'; \
-		echo '\tOptions -Indexes'; \
-		echo '\tAllowOverride All'; \
-		echo '</Directory>'; \
-	} | tee "$APACHE_CONFDIR/conf-available/docker-php.conf" \
-	&& a2enconf docker-php
+ENV APACHE_CONFFILE $APACHE_CONF_DIR/conf-available/docker-php.conf
+RUN mkdir -p $APACHE_CONF_DIR/conf-available
 
+RUN { \
+	echo '<FilesMatch \.php$>'; \
+	echo '\tSetHandler application/x-httpd-php'; \
+	echo '</FilesMatch>'; \
+	echo; \
+	echo 'DirectoryIndex disabled'; \
+	echo 'DirectoryIndex index.php index.html'; \
+	echo; \
+	echo '<Directory /var/www/>'; \
+	echo '\tOptions -Indexes'; \
+	echo '\tAllowOverride All'; \
+	echo '</Directory>'; \
+    } | tee $APACHE_CONFFILE
+RUN a2enconf docker-php
 
 ENV PHP_INI_DIR /usr/local/etc/php
 
-RUN mkdir -p /tmp/build \
-	&& cd /tmp/build \
-	&& curl -sSL https://github.com/php/php-src/archive/php-$PHP_VER.zip > php-$PHP_VER.zip \
+RUN	mkdir -p /tmp/build && cd /tmp/build \
+	&& cp /var/tmp/php-$PHP_VER.zip ./ \
 	&& unzip php-$PHP_VER.zip \
 	&& rm -f php-$PHP_VER.zip \
 	&& cd /tmp/build/php-src-php-$PHP_VER \
