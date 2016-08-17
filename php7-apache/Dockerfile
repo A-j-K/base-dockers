@@ -186,6 +186,8 @@ RUN echo "extension=yaf.so" > $PHP_INI_DIR/conf.d/99-yaf.ini
 WORKDIR /
 RUN rm -rf /tmp/build
 
+RUN a2enmod rewrite
+
 # Clean up.
 RUN apt-get remove -y $DEPS_TEMP \
 	&& apt-get autoremove -y \
