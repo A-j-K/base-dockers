@@ -176,6 +176,16 @@ RUN echo "extension=amqp.so" > $PHP_INI_DIR/conf.d/99-amqp.ini
 WORKDIR /
 RUN rm -rf /tmp/build
 
+RUN mkdir -p /tmp/build
+COPY dist/yaf-3.0.3.zip /tmp/build/yaf-3.0.3.zip
+WORKDIR /tmp/build
+RUN unzip -q yaf-3.0.3.zip && rm yaf-3.0.3.zip
+WORKDIR /tmp/build/yaf-yaf-3.0.3
+RUN phpize && ./configure && make && make install
+RUN echo "extension=yaf.so" > $PHP_INI_DIR/conf.d/99-yaf.ini
+WORKDIR /
+RUN rm -rf /tmp/build
+
 # Clean up.
 RUN apt-get remove -y $DEPS_TEMP \
 	&& apt-get autoremove -y \
