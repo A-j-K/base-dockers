@@ -51,10 +51,12 @@ ENV DEPS \
 
 RUN apt-get update && apt-get install -y $DEPS $DEPS_TEMP --no-install-recommends
 
+RUN mkdir -p /tmp/build
+
+RUN curl -sSL https://github.com/php/php-src/archive/php-$PHP_VER.zip > /tmp/build/php-$PHP_VER.zip
+
 ENV PHP_INI_DIR /usr/local/etc/php
 
-RUN mkdir -p /tmp/build
-COPY dist/php-$PHP_VER.zip /tmp/build/php-$PHP_VER.zip
 RUN cd /tmp/build && unzip php-$PHP_VER.zip \
 	&& rm -f php-$PHP_VER.zip \
 	&& cd /tmp/build/php-src-php-$PHP_VER \
