@@ -117,6 +117,7 @@ RUN	mkdir -p /tmp/build && cd /tmp/build \
 		--with-libedit \
 		--with-openssl \
 		--with-zlib \
+		--enable-bcmath \
 		--with-apxs2 \
 	&& make -j"$(nproc)" \
 	&& make install \
