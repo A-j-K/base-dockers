@@ -72,6 +72,7 @@ RUN cd /tmp/build && unzip php-$PHP_VER.zip \
 		--with-curl \
 		--with-libedit \
 		--with-openssl \
+		--with-bcmath \
 		--with-zlib \
 	&& make -j"$(nproc)" \
 	&& make install \
