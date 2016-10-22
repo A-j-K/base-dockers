@@ -47,7 +47,8 @@ ENV DEPS \
 	libmemcached-dev \
 	libev-dev \
 	librabbitmq-dev \
-	librabbitmq1 
+	librabbitmq1 \
+	git
 
 RUN apt-get update && apt-get install -y $DEPS $DEPS_TEMP --no-install-recommends
 
