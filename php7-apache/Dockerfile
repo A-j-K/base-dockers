@@ -49,7 +49,8 @@ ENV DEPS \
 	libev-dev \
 	apache2-bin \
 	apache2-dev \
-	apache2.2-common
+	apache2.2-common \
+	git
 
 RUN apt-get update && apt-get install -y $DEPS $DEPS_TEMP --no-install-recommends
 
@@ -195,6 +196,4 @@ RUN apt-get remove -y $DEPS_TEMP \
 	&& rm -r /var/lib/apt/lists/*
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-RUN apt-get install -y git
-
 
