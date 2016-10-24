@@ -1,25 +1,11 @@
-FROM andykirkham/base-docker-php7-cli:latest
+FROM andykirkham/base-dockers-php5-cli:latest
 MAINTAINER Andy Kirkham <andy@spiders-lair.com>
 
 ENV DEBIAN_FRONTEND noninteractive
 
-ENV DEPS \
-	build-essential \
-	python2.7 \
-        python2.7-dev \
-        python-setuptools \
-        python-pip 
-
-RUN apt-get update && apt-get install -y $DEPS --no-install-recommends
-
-RUN pip install virtualenv \
-	&& mkdir -p /var/www/html/crossbar \
-	&& cd /var/www/html/crossbar \
-	&& virtualenv python-venv \
-	&& cd /var/www/html/crossbar/python-venv \
-	&& . bin/activate && pip install crossbar \
-	&& cd / \
-	&& apt-get remove -y build-essential \
-	&& apt-get autoremove -y \
-	&& rm -r /var/lib/apt/lists/*
+RUN apt-key adv --keyserver hkps.pool.sks-keyservers.net --recv D58C6920
+RUN sh -c "echo 'deb http://package.crossbar.io/ubuntu trusty main' \
+    > /etc/apt/sources.list.d/crossbar.list"
+RUN apt-get update
+RUN apt-get install -y crossbar
 
