@@ -1,7 +1,7 @@
 FROM debian:jessie
 MAINTAINER Andy Kirkham <andy@spiders-lair.com>
 
-ARG PHP_VER="7.1.0"
+ARG PHP_VER="7.1.1"
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -12,7 +12,7 @@ ENV DEPS_TEMP \
 	gcc \
 	make \
 	bison \
-	re2c
+	re2c 
 
 ENV DEPS \
 	apt-utils \
@@ -82,6 +82,18 @@ RUN cd /tmp/build && unzip php-$PHP_VER.zip \
 	&& make clean \
 	&& cd / \
 	&& rm -rf /tmp/build
+
+RUN mkdir -p /tmp/build
+COPY dist/cmake-3.8.0-rc1-Linux-x86_64.tar.gz /tmp/build
+WORKDIR /tmp/build
+RUN tar -v -zxf cmake-3.8.0-rc1-Linux-x86_64.tar.gz 
+WORKDIR /tmp/build/cmake-3.8.0-rc1-Linux-x86_64
+RUN cp -rp bin/* /usr/local/bin/
+RUN cp -rp share/* /usr/local/share/
+RUN cp -rp man/* /usr/local/man/
+RUN cp -rp doc/* /usr/local/doc/
+WORKDIR /
+RUN rm -rf /tmp/build
 
 RUN mkdir -p /tmp/build
 COPY dist/pecl-event-libevent.zip /tmp/build
