@@ -76,6 +76,7 @@ RUN cd /tmp/build && unzip -q php-$PHP_VER.zip \
 		--enable-bcmath \
 		--enable-pcntl \
 		--with-zlib \
+		--without-pear \
 	&& make -j"$(nproc)" \
 	&& make install \
 	&& { find /usr/local/bin /usr/local/sbin -type f -executable -exec strip --strip-all '{}' + || true; } \
