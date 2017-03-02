@@ -58,7 +58,7 @@ RUN curl -sSL https://github.com/php/php-src/archive/php-$PHP_VER.zip > /tmp/bui
 
 ENV PHP_INI_DIR /usr/local/etc/php
 
-RUN cd /tmp/build && unzip php-$PHP_VER.zip \
+RUN cd /tmp/build && unzip -q php-$PHP_VER.zip \
 	&& rm -f php-$PHP_VER.zip \
 	&& cd /tmp/build/php-src-php-$PHP_VER \
 	&& mkdir -p $PHP_INI_DIR/conf.d \
