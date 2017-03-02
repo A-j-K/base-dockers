@@ -102,7 +102,7 @@ ENV PHP_INI_DIR /usr/local/etc/php
 
 RUN	mkdir -p /tmp/build && cd /tmp/build \
 	&& cp /var/tmp/php-$PHP_VER.zip ./ \
-	&& unzip php-$PHP_VER.zip \
+	&& unzip -q php-$PHP_VER.zip \
 	&& rm -f php-$PHP_VER.zip \
 	&& cd /tmp/build/php-src-php-$PHP_VER \
 	&& mkdir -p $PHP_INI_DIR/conf.d \
@@ -121,6 +121,7 @@ RUN	mkdir -p /tmp/build && cd /tmp/build \
 		--enable-bcmath \
 		--enable-pcntl \
 		--with-apxs2 \
+		--without-pear \
 	&& make -j"$(nproc)" \
 	&& make install \
 	&& { find /usr/local/bin /usr/local/sbin -type f -executable -exec strip --strip-all '{}' + || true; } \
