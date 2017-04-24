@@ -3,7 +3,7 @@ MAINTAINER Andy Kirkham
 
 # Command And Control node base definition
 
-ENV TF_VERSION="0.9.2"
+ENV TF_VERSION="0.9.3"
 ENV PK_VERSION="1.0.0"
 ENV DM_VERSION="0.10.0"
 
