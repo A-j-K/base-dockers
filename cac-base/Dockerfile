@@ -56,6 +56,15 @@ RUN curl -sSL http://www-eu.apache.org/dist//ant/binaries/apache-ant-1.10.1-bin.
 	&& mv apache-ant-1.10.1 /usr/local \
 	&& echo "export ANT_HOME=\"/usr/local/apache-ant-1.10.1\"" >> /etc/bash.bashrc \
 	&& echo "export PATH=\"$PATH:/usr/local/apache-ant-1.10.1/bin\"" >> /etc/bash.bashrc
+RUN curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4_2.9-1_amd64.deb > libjansson4_2.9-1_amd64.deb \
+        && dpkg -i libjansson4_2.9-1_amd64.deb \
+        && rm -f libjansson4_2.9-1_amd64.deb
+RUN curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson-dev_2.9-1_amd64.deb > libjansson-dev_2.9-1_amd64.deb \
+        && dpkg -i libjansson-dev_2.9-1_amd64.deb \
+        && rm -f libjansson-dev_2.9-1_amd64.deb
+RUN curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4-dbgsym_2.9-1_amd64.ddeb > libjansson4-dbgsym_2.9-1_amd64.ddeb \
+        && dpkg -i libjansson4-dbgsym_2.9-1_amd64.ddeb \
+        && rm -f libjansson4-dbgsym_2.9-1_amd64.ddeb
 
 RUN mkdir -p /workspace
 WORKDIR /workspace
