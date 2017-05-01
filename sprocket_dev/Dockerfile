@@ -3,22 +3,18 @@ MAINTAINER Andy Kirkham
 
 # Command And Control node base definition
 
-#RUN DEBIAN_FRONTEND=noninteractive apt-get update
-#RUN DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential software-properties-common
-#RUN DEBIAN_FRONTEND=noninteractive apt-add-repository -y ppa:ansible/ansible
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y update
-
-#E: Package 'libmysqlclient18' has no installation candidate
-#E: Unable to locate package librabbitmq1
 
 ENV PKGS \
 	build-essential \
+	software-properties-common \
 	autoconf \
 	g++ \
 	gcc \
 	make \
 	bison \
 	re2c \
+	cmake \
 	apt-utils \
 	ca-certificates \
 	file \
@@ -54,6 +50,8 @@ ENV PKGS \
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y $PKGS --no-install-recommends
 
+# We want the latest (we can at least) version of Jansson, even in 16.04 we get a hopelessly out-dated 2.5 version via apt-get
+# Not sure why there's no easy to install PPA for this.
 WORKDIR /tmp
 RUN curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4_2.9-1_amd64.deb > libjansson4_2.9-1_amd64.deb \
         && dpkg -i libjansson4_2.9-1_amd64.deb \
