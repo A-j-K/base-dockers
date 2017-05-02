@@ -15,6 +15,8 @@ ENV PKGS \
 	bison \
 	re2c \
 	cmake \
+	check \
+	valgrind \
 	apt-utils \
 	ca-certificates \
 	file \
@@ -72,7 +74,9 @@ RUN curl -sSL https://github.com/nodejs/http-parser/archive/v$HTTP_PARSER_VER.zi
 	&& make install \
 	&& cd .. \
 	&& rm -rf http-parser-$HTTP_PARSER_VER \
-	&& rm http-parser-$HTTP_PARSER_VER.zip
+	&& rm http-parser-$HTTP_PARSER_VER.zip \
+	&& cp /usr/local/lib/libhttp_parser.so.$HTTP_PARSER_VER /usr/lib/x86_64-linux-gnu/ \
+	&& ln -s /usr/lib/x86_64-linux-gnu/libhttp_parser.so.$HTTP_PARSER_VER /usr/lib/x86_64-linux-gnu/libhttp_parser.so
 
 RUN mkdir -p /workspace
 WORKDIR /workspace
