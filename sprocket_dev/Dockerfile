@@ -65,7 +65,7 @@ RUN curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4-d
 
 ENV HTTP_PARSER_VER "2.7.1"
 
-RUN curl -sSL https://github.com/nodejs/http-parser/archive/v2.7.1.zip > http-parser-$HTTP_PARSER_VER.zip \
+RUN curl -sSL https://github.com/nodejs/http-parser/archive/v$HTTP_PARSER_VER.zip > http-parser-$HTTP_PARSER_VER.zip \
 	&& unzip http-parser-$HTTP_PARSER_VER.zip \
 	&& cd http-parser-$HTTP_PARSER_VER \
 	&& make \
