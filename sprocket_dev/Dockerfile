@@ -63,6 +63,17 @@ RUN curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4-d
         && dpkg -i libjansson4-dbgsym_2.9-1_amd64.ddeb \
         && rm -f libjansson4-dbgsym_2.9-1_amd64.ddeb
 
+ENV HTTP_PARSER_VER "2.7.1"
+
+RUN curl -sSL https://github.com/nodejs/http-parser/archive/v2.7.1.zip > http-parser-$HTTP_PARSER_VER.zip \
+	&& unzip http-parser-$HTTP_PARSER_VER.zip \
+	&& cd http-parser-$HTTP_PARSER_VER \
+	&& make \
+	&& make install \
+	&& cd .. \
+	&& rm -rf http-parser-$HTTP_PARSER_VER \
+	&& rm http-parser-$HTTP_PARSER_VER.zip
+
 RUN mkdir -p /workspace
 WORKDIR /workspace
 
