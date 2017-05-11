@@ -39,6 +39,8 @@ ENV PKGS \
 	unzip \
 	libmysqlclient-dev \
 	mysql-client \
+	libconfig9 \
+	libconfig-dev \
 	libbison-dev \
 	libcurl4-gnutls-dev \
 	libedit-dev \
