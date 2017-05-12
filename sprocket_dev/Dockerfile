@@ -50,7 +50,8 @@ ENV PKGS \
 	libmemcached-dev \
 	libev-dev \
 	librabbitmq-dev \
-	git
+	git \
+	netcat
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y $PKGS --no-install-recommends
 
