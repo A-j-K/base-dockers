@@ -1,7 +1,7 @@
 FROM debian:jessie
 MAINTAINER Andy Kirkham <andy@spiders-lair.com>
 
-ARG PHP_VER="7.1.3"
+ARG PHP_VER="7.1.5"
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -156,12 +156,24 @@ RUN echo "extension=yaf.so" > $PHP_INI_DIR/conf.d/99-yaf.ini
 WORKDIR /
 RUN rm -rf /tmp/build
 
+ARG JANSSON_VER="2.10"
+RUN mkdir -p /tmp/build 
+WORKDIR /tmp/build
+RUN curl -sSL https://github.com/akheron/jansson/archive/v$JANSSON_VER.zip > jansson-$JANSSON_VER.zip
+RUN unzip jansson-$JANSSON_VER.zip
+WORKDIR /tmp/build/jansson-$JANSSON_VER
+RUN mkdir /tmp/build/jansson-$JANSSON_VER/build
+WORKDIR /tmp/build/jansson-$JANSSON_VER/build
+RUN cmake .. && make && make install
+WORKDIR /
+RUN rm -rf /tmp/build
+
 RUN echo "zend_extension=opcache.so" > $PHP_INI_DIR/conf.d/01-opcache.ini 
 
 # Clean up.
-RUN apt-get remove -y $DEPS_TEMP \
-	&& apt-get autoremove -y \
-	&& rm -r /var/lib/apt/lists/*
+#RUN apt-get remove -y $DEPS_TEMP \
+#	&& apt-get autoremove -y \
+#	&& rm -r /var/lib/apt/lists/*
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 

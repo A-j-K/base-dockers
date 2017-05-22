@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PHP_VER="7.1.1"
+PHP_VER="7.1.5"
 
 docker build --build-arg PHP_VER=$PHP_VER -t php7-apache:${PHP_VER} .
 

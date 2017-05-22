@@ -1,7 +1,7 @@
 FROM debian:jessie
 MAINTAINER Andy Kirkham <andy@spiders-lair.com>
 
-ARG PHP_VER="7.1.3"
+ARG PHP_VER="7.1.5"
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -12,7 +12,8 @@ ENV DEPS_TEMP \
 	gcc \
 	make \
 	bison \
-	re2c
+	re2c \
+	cmake
 
 ENV DEPS \
 	apt-utils \
@@ -50,6 +51,7 @@ ENV DEPS \
 	apache2-bin \
 	apache2-dev \
 	apache2.2-common \
+	ssh \
 	git
 
 RUN apt-get update && apt-get install -y $DEPS $DEPS_TEMP --no-install-recommends
@@ -191,6 +193,18 @@ WORKDIR /
 RUN rm -rf /tmp/build
 
 RUN a2enmod rewrite
+
+ARG JANSSON_VER="2.10"
+RUN mkdir -p /tmp/build
+WORKDIR /tmp/build
+RUN curl -sSL https://github.com/akheron/jansson/archive/v$JANSSON_VER.zip > jansson-$JANSSON_VER.zip
+RUN unzip jansson-$JANSSON_VER.zip
+WORKDIR /tmp/build/jansson-$JANSSON_VER
+RUN mkdir /tmp/build/jansson-$JANSSON_VER/build
+WORKDIR /tmp/build/jansson-$JANSSON_VER/build
+RUN cmake .. && make && make install
+WORKDIR /
+RUN rm -rf /tmp/build
 
 # Clean up.
 RUN apt-get remove -y $DEPS_TEMP \

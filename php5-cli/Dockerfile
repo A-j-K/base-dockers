@@ -38,12 +38,15 @@ ENV DEPS \
 	libev-dev \
 	librabbitmq-dev \
 	librabbitmq1 \
+	cmake \
+	ssh \
 	git
 
 RUN apt-get update && apt-get install -y $DEPS --no-install-recommends
 
-RUN pecl install memcached \
-    && docker-php-ext-enable memcached
+# Memcached for 5.6 no longer availabled.
+#RUN pecl install memcached \
+#    && docker-php-ext-enable memcached
 RUN pecl install libevent-0.1.0 \
     && docker-php-ext-enable libevent 
 RUN pecl install zmq-1.1.3 \
@@ -61,6 +64,18 @@ RUN apt-get autoremove -y \
 	&& rm -r /var/lib/apt/lists/*
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+ARG JANSSON_VER="2.10"
+RUN mkdir -p /tmp/build
+WORKDIR /tmp/build
+RUN curl -sSL https://github.com/akheron/jansson/archive/v$JANSSON_VER.zip > jansson-$JANSSON_VER.zip
+RUN unzip jansson-$JANSSON_VER.zip
+WORKDIR /tmp/build/jansson-$JANSSON_VER
+RUN mkdir /tmp/build/jansson-$JANSSON_VER/build
+WORKDIR /tmp/build/jansson-$JANSSON_VER/build
+RUN cmake .. && make && make install
+WORKDIR /
+RUN rm -rf /tmp/build
 
 
 
