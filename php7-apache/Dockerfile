@@ -206,6 +206,19 @@ RUN cmake .. && make && make install
 WORKDIR /
 RUN rm -rf /tmp/build
 
+RUN mkdir -p /tmp/build
+WORKDIR /tmp/build
+RUN curl -sSL https://github.com/stellartech/phpjansson/archive/master.zip > php_jansson.zip
+RUN unzip php_jansson.zip
+WORKDIR /tmp/build/phpjansson-master
+RUN phpize \
+	&& ./configure --with-jansson \
+	&& make \
+	&& make install
+RUN echo "extension=jansson.so" > $PHP_INI_DIR/conf.d/99-jansson.ini 
+WORKDIR /
+RUN rm -rf /tmp/build
+
 # Clean up.
 RUN apt-get remove -y $DEPS_TEMP \
 	&& apt-get autoremove -y \
