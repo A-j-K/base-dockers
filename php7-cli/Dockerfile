@@ -12,7 +12,8 @@ ENV DEPS_TEMP \
 	gcc \
 	make \
 	bison \
-	re2c 
+	re2c \
+	cmake
 
 ENV DEPS \
 	apt-utils \
@@ -48,6 +49,7 @@ ENV DEPS \
 	libev-dev \
 	librabbitmq-dev \
 	librabbitmq1 \
+	ssh \
 	git
 
 RUN apt-get update && apt-get install -y $DEPS $DEPS_TEMP --no-install-recommends
@@ -168,12 +170,25 @@ RUN cmake .. && make && make install
 WORKDIR /
 RUN rm -rf /tmp/build
 
+RUN mkdir -p /tmp/build
+WORKDIR /tmp/build
+RUN curl -sSL https://github.com/stellartech/phpjansson/archive/master.zip > php_jansson.zip
+RUN unzip php_jansson.zip
+WORKDIR /tmp/build/phpjansson-master
+RUN phpize \
+	&& ./configure --with-jansson \
+	&& make \
+	&& make install
+RUN echo "extension=jansson.so" > $PHP_INI_DIR/conf.d/99-jansson.ini 
+WORKDIR /
+RUN rm -rf /tmp/build
+
 RUN echo "zend_extension=opcache.so" > $PHP_INI_DIR/conf.d/01-opcache.ini 
 
 # Clean up.
-#RUN apt-get remove -y $DEPS_TEMP \
-#	&& apt-get autoremove -y \
-#	&& rm -r /var/lib/apt/lists/*
+RUN apt-get remove -y $DEPS_TEMP \
+	&& apt-get autoremove -y \
+	&& rm -r /var/lib/apt/lists/*
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
