@@ -18,6 +18,7 @@ ENV DEPS \
 	vim \
 	ssh \
 	git \
+	screen \
 	bzip2 \
 	make \
 	cmake 
