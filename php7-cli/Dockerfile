@@ -186,9 +186,9 @@ RUN rm -rf /tmp/build
 RUN echo "zend_extension=opcache.so" > $PHP_INI_DIR/conf.d/01-opcache.ini 
 
 # Clean up.
-RUN apt-get remove -y $DEPS_TEMP \
-	&& apt-get autoremove -y \
-	&& rm -r /var/lib/apt/lists/*
+#RUN apt-get remove -y $DEPS_TEMP \
+#	&& apt-get autoremove -y \
+#	&& rm -r /var/lib/apt/lists/*
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
