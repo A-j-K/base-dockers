@@ -3,8 +3,8 @@ MAINTAINER Andy Kirkham
 
 # Command And Control node base definition
 
-ENV TF_VERSION="0.9.3"
-ENV PK_VERSION="1.0.0"
+ENV TF_VERSION="0.9.8"
+ENV PK_VERSION="1.0.1"
 ENV DM_VERSION="0.10.0"
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
@@ -15,6 +15,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y update
 ENV PKGS \
 	ansible \
 	git \
+	subversion \
 	curl \
 	unzip \
 	jq \
@@ -24,7 +25,12 @@ ENV PKGS \
 	autoconf \
 	apt-utils \
 	vim \
-	file
+	file \
+	qt4-default \
+	libapr1-dev \
+	libsvn-dev \
+	libsvncpp-dev \
+	libsvncpp3 libsvn1
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y $PKGS --no-install-recommends
 
@@ -65,6 +71,14 @@ RUN curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson-de
 RUN curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4-dbgsym_2.9-1_amd64.ddeb > libjansson4-dbgsym_2.9-1_amd64.ddeb \
         && dpkg -i libjansson4-dbgsym_2.9-1_amd64.ddeb \
         && rm -f libjansson4-dbgsym_2.9-1_amd64.ddeb
+
+RUN git clone https://github.com/svn-all-fast-export/svn2git.git \
+	&& cd svn2git \
+	&& qmake \
+	&& make \
+	&& cp svn-all-fast-export /usr/local/bin/svn-all-fast-export \
+	&& cd .. \
+	&& rm -rf svn2git
 
 RUN mkdir -p /workspace
 WORKDIR /workspace
