@@ -77,6 +77,7 @@ RUN git clone https://github.com/svn-all-fast-export/svn2git.git \
 	&& qmake \
 	&& make \
 	&& cp svn-all-fast-export /usr/local/bin/svn-all-fast-export \
+	&& cp svn-all-fast-export /usr/local/bin/svn2git \
 	&& cd .. \
 	&& rm -rf svn2git
 
