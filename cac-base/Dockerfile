@@ -1,16 +1,16 @@
-FROM ubuntu:16.04
+FROM ubuntu:17.04
 MAINTAINER Andy Kirkham
 
 # Command And Control node base definition
 
-ENV TF_VERSION="0.9.8"
-ENV PK_VERSION="1.0.1"
+ENV TF_VERSION="0.9.9"
+ENV PK_VERSION="1.0.2"
 ENV DM_VERSION="0.10.0"
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential software-properties-common
 RUN DEBIAN_FRONTEND=noninteractive apt-add-repository -y ppa:ansible/ansible
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y update
+RUN DEBIAN_FRONTEND=noninteractive apt-get update
 
 ENV PKGS \
 	ansible \
@@ -21,6 +21,7 @@ ENV PKGS \
 	jq \
 	awscli \
 	openjdk-8-jdk \
+	python-pip \
 	cmake \
 	autoconf \
 	apt-utils \
@@ -32,7 +33,8 @@ ENV PKGS \
 	libsvncpp-dev \
 	libsvncpp3 libsvn1
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y $PKGS --no-install-recommends
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y $PKGS --no-install-recommends \
+	&& rm -rf /var/lib/apt/lists/*
 
 RUN echo "export JAVA_HOME=\"/usr\"" >> /etc/bash.bashrc
 
@@ -54,14 +56,13 @@ RUN curl -sSL http://www-eu.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-
 	&& tar -zxf apache-maven-3.3.9-bin.tar.gz \
 	&& rm -f apache-maven-3.3.9-bin.tar.gz \
 	&& mv apache-maven-3.3.9 /usr/local \
-	&& echo "export MVN_HOME=\"/usr/local/apache-maven-3.3.9\"" >> /etc/bash.bashrc \
-	&& echo "export PATH=\"$PATH:/usr/local/apache-maven-3.3.9/bin\"" >> /etc/bash.bashrc
+	&& echo "export MVN_HOME=\"/usr/local/apache-maven-3.3.9\"" >> /etc/bash.bashrc 
 RUN curl -sSL http://www-eu.apache.org/dist//ant/binaries/apache-ant-1.10.1-bin.tar.gz > apache-ant-1.10.1-bin.tar.gz \
 	&& tar -zxf apache-ant-1.10.1-bin.tar.gz \
 	&& rm -f apache-ant-1.10.1-bin.tar.gz \
 	&& mv apache-ant-1.10.1 /usr/local \
-	&& echo "export ANT_HOME=\"/usr/local/apache-ant-1.10.1\"" >> /etc/bash.bashrc \
-	&& echo "export PATH=\"$PATH:/usr/local/apache-ant-1.10.1/bin\"" >> /etc/bash.bashrc
+	&& echo "export ANT_HOME=\"/usr/local/apache-ant-1.10.1\"" >> /etc/bash.bashrc 
+RUN echo "export PATH=\"$PATH:/usr/local/apache-maven-3.3.9/bin:/usr/local/apache-ant-1.10.1/bin\"" >> /etc/bash.bashrc
 RUN curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4_2.9-1_amd64.deb > libjansson4_2.9-1_amd64.deb \
         && dpkg -i libjansson4_2.9-1_amd64.deb \
         && rm -f libjansson4_2.9-1_amd64.deb
@@ -72,14 +73,8 @@ RUN curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4-d
         && dpkg -i libjansson4-dbgsym_2.9-1_amd64.ddeb \
         && rm -f libjansson4-dbgsym_2.9-1_amd64.ddeb
 
-RUN git clone https://github.com/svn-all-fast-export/svn2git.git \
-	&& cd svn2git \
-	&& qmake \
-	&& make \
-	&& cp svn-all-fast-export /usr/local/bin/svn-all-fast-export \
-	&& cp svn-all-fast-export /usr/local/bin/svn2git \
-	&& cd .. \
-	&& rm -rf svn2git
+
+RUN apt-get clean
 
 RUN mkdir -p /workspace
 WORKDIR /workspace
