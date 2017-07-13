@@ -3,9 +3,8 @@ MAINTAINER Andy Kirkham
 
 # Command And Control node base definition
 
-ENV TF_VERSION="0.9.9"
+ENV TF_VERSION="0.9.11"
 ENV PK_VERSION="1.0.2"
-ENV DM_VERSION="0.10.0"
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential software-properties-common
@@ -27,6 +26,7 @@ ENV PKGS \
 	apt-utils \
 	vim \
 	file \
+	gpg \
 	qt4-default \
 	libapr1-dev \
 	libsvn-dev \
@@ -49,9 +49,6 @@ RUN curl -sSL https://releases.hashicorp.com/packer/${PK_VERSION}/packer_${PK_VE
 	&& mv packer /usr/local/bin/packer \
 	&& chmod 755 /usr/local/bin/packer \
 	&& rm -f packer.zip 
-RUN curl -sSL https://github.com/docker/machine/releases/download/v${DM_VERSION}/docker-machine-`uname -s`-`uname -m` >docker-machine \
-	&& chmod +x docker-machine \
-	&& mv docker-machine /usr/local/bin/docker-machine 
 RUN curl -sSL http://www-eu.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz > apache-maven-3.3.9-bin.tar.gz \
 	&& tar -zxf apache-maven-3.3.9-bin.tar.gz \
 	&& rm -f apache-maven-3.3.9-bin.tar.gz \
