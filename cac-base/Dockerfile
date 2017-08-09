@@ -3,8 +3,8 @@ MAINTAINER Andy Kirkham
 
 # Command And Control node base definition
 
-ENV TF_VERSION="0.9.11"
-ENV PK_VERSION="1.0.2"
+ENV TF_VERSION="0.10.0"
+ENV PK_VERSION="1.0.3"
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential software-properties-common
