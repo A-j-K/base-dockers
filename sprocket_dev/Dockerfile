@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:xenial
 MAINTAINER Andy Kirkham
 
 # Command And Control node base definition
