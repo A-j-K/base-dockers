@@ -80,7 +80,7 @@ RUN chmod +x cfssl_linux-amd64 cfssljson_linux-amd64
 RUN mv cfssl_linux-amd64 /usr/local/bin/cfssl
 RUN mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
 
-RUN curl -o kubectl https://storage.googleapis.com/kubernetes-release/release/v1.8.0/bin/darwin/amd64/kubectl
+RUN curl -o kubectl https://storage.googleapis.com/kubernetes-release/release/v1.8.0/bin/linux/amd64/kubectl
 RUN chmod +x kubectl
 RUN mv kubectl /usr/local/bin/
 
