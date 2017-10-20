@@ -8,6 +8,8 @@ It contains:-
   * Ansible
   * Hashicorp Packer
   * Hashicorp Terraform
+  * CFSSL
+  * kubectl
   * Other useful tools, see the Dockerfile for details
 
 Note, no credentials are installed, your child nodes should inject credentials as required.
