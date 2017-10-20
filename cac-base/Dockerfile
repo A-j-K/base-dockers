@@ -3,8 +3,8 @@ MAINTAINER Andy Kirkham
 
 # Command And Control node base definition
 
-ENV TF_VERSION="0.10.0"
-ENV PK_VERSION="1.0.3"
+ENV TF_VERSION="0.10.7"
+ENV PK_VERSION="1.1.1"
 ENV MV_VERSION="3.5.0"
 ENV ANT_VERSION="1.10.1"
 
@@ -28,6 +28,7 @@ ENV PKGS \
 	apt-utils \
 	vim \
 	file \
+	wget \
 	gpg \
 	qt4-default \
 	libapr1-dev \
@@ -71,6 +72,17 @@ RUN curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson-de
 RUN curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4-dbgsym_2.9-1_amd64.ddeb > libjansson4-dbgsym_2.9-1_amd64.ddeb \
         && dpkg -i libjansson4-dbgsym_2.9-1_amd64.ddeb \
         && rm -f libjansson4-dbgsym_2.9-1_amd64.ddeb
+
+RUN wget -q --show-progress --https-only --timestamping \
+	https://pkg.cfssl.org/R1.2/cfssl_linux-amd64 \
+	https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+RUN chmod +x cfssl_linux-amd64 cfssljson_linux-amd64
+RUN mv cfssl_linux-amd64 /usr/local/bin/cfssl
+RUN mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
+
+RUN curl -o kubectl https://storage.googleapis.com/kubernetes-release/release/v1.8.0/bin/darwin/amd64/kubectl
+RUN chmod +x kubectl
+RUN mv kubectl /usr/local/bin/
 
 RUN pip install eb
 
