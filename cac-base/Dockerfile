@@ -1,4 +1,4 @@
-FROM ubuntu:17.04
+FROM andykirkham/ubuntu-image
 MAINTAINER Andy Kirkham
 
 # Command And Control node base definition
@@ -7,37 +7,6 @@ ENV TF_VERSION="0.10.7"
 ENV PK_VERSION="1.1.1"
 ENV MV_VERSION="3.5.0"
 ENV ANT_VERSION="1.10.1"
-
-RUN DEBIAN_FRONTEND=noninteractive apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential software-properties-common
-RUN DEBIAN_FRONTEND=noninteractive apt-add-repository -y ppa:ansible/ansible
-RUN DEBIAN_FRONTEND=noninteractive apt-get update
-
-ENV PKGS \
-	ansible \
-	git \
-	subversion \
-	curl \
-	unzip \
-	jq \
-	awscli \
-	openjdk-8-jdk \
-	python-pip \
-	cmake \
-	autoconf \
-	apt-utils \
-	vim \
-	file \
-	wget \
-	gpg \
-	qt4-default \
-	libapr1-dev \
-	libsvn-dev \
-	libsvncpp-dev \
-	libsvncpp3 libsvn1
-
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y $PKGS --no-install-recommends \
-	&& rm -rf /var/lib/apt/lists/*
 
 RUN echo "export JAVA_HOME=\"/usr\"" >> /etc/bash.bashrc
 
