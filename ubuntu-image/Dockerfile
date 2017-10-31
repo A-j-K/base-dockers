@@ -11,6 +11,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update
 ENV PKGS \
 	ansible \
 	git \
+	ssh \
 	subversion \
 	curl \
 	unzip \
