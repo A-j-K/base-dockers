@@ -42,6 +42,13 @@ RUN curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4-d
         && dpkg -i libjansson4-dbgsym_2.9-1_amd64.ddeb \
         && rm -f libjansson4-dbgsym_2.9-1_amd64.ddeb
 
+RUN 	apt-get remove -y awscli 
+RUN	curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip" \
+	&& unzip awscli-bundle.zip \
+	&& ./awscli-bundle/install -i /usr/local/aws -b /usr/bin/aws \
+	&& rm -rf awscli-bundle \
+	&& rm -f awscli-bundle.zip
+
 RUN wget -q --show-progress --https-only --timestamping \
 	https://pkg.cfssl.org/R1.2/cfssl_linux-amd64 \
 	https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
