@@ -5,7 +5,7 @@ MAINTAINER Andy Kirkham
 
 ENV TF_VERSION="0.10.7"
 ENV PK_VERSION="1.1.1"
-ENV MV_VERSION="3.5.0"
+ENV MV_VERSION="3.5.2"
 ENV ANT_VERSION="1.10.1"
 
 RUN echo "export JAVA_HOME=\"/usr\"" >> /etc/bash.bashrc
@@ -26,7 +26,7 @@ RUN curl -sSL http://www-eu.apache.org/dist/maven/maven-3/${MV_VERSION}/binaries
 	&& rm -f apache-maven-${MV_VERSION}-bin.tar.gz \
 	&& mv apache-maven-${MV_VERSION} /usr/local \
 	&& echo "export MVN_HOME=\"/usr/local/apache-maven-${MV_VERSION}\"" >> /etc/bash.bashrc 
-RUN curl -sSL http://www-eu.apache.org/dist//ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz > apache-ant-${ANT_VERSION}-bin.tar.gz \
+RUN curl -sSL http://www-eu.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz > apache-ant-${ANT_VERSION}-bin.tar.gz \
 	&& tar -zxf apache-ant-${ANT_VERSION}-bin.tar.gz \
 	&& rm -f apache-ant-${ANT_VERSION}-bin.tar.gz \
 	&& mv apache-ant-${ANT_VERSION} /usr/local \
@@ -42,6 +42,7 @@ RUN curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4-d
         && dpkg -i libjansson4-dbgsym_2.9-1_amd64.ddeb \
         && rm -f libjansson4-dbgsym_2.9-1_amd64.ddeb
 
+# Because "apt-get install awscli" gives us a version that's too old.
 RUN 	apt-get remove -y awscli 
 RUN	curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip" \
 	&& unzip awscli-bundle.zip \
