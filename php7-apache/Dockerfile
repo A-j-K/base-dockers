@@ -219,6 +219,29 @@ RUN echo "extension=jansson.so" > $PHP_INI_DIR/conf.d/99-jansson.ini
 WORKDIR /
 RUN rm -rf /tmp/build
 
+RUN mkdir -p /tmp/build
+WORKDIR /tmp/build
+RUN curl -sSL http://mirrorservice.org/sites/ftp.apache.org/zookeeper/zookeeper-3.4.11/zookeeper-3.4.11.tar.gz > zookeeper-3.4.11.tar.gz
+RUN tar -zxf zookeeper-3.4.11.tar.gz
+WORKDIR /tmp/build/zookeeper-3.4.11/src/c
+RUN ./configure --prefix=/usr/
+RUN make && make install
+WORKDIR /
+RUN rm -rf /tmp/build
+
+RUN mkdir -p /tmp/build
+WORKDIR /tmp/build
+COPY dist/php-zookeeper.zip /tmp/build/php-zookeeper.zip
+RUN unzip php-zookeeper.zip
+WORKDIR /tmp/build/php-zookeeper-php7
+RUN phpize \
+	&& ./configure \
+	&& make \
+	&& make install
+RUN echo "extension=zookeeper.so" > $PHP_INI_DIR/conf.d/20-zookeeper.ini 
+WORKDIR /
+RUN rm -rf /tmp/build
+
 # Clean up.
 RUN apt-get remove -y $DEPS_TEMP \
 	&& apt-get autoremove -y \
