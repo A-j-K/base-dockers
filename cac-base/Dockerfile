@@ -61,6 +61,12 @@ RUN curl -o kubectl https://storage.googleapis.com/kubernetes-release/release/v1
 RUN chmod +x kubectl
 RUN mv kubectl /usr/local/bin/
 
+RUN curl -o helm-v2.7.2-linux-amd64.tar.gz https://kubernetes-helm.storage.googleapis.com/helm-v2.7.2-linux-amd64.tar.gz \
+	&& tar -zxf helm-v2.7.2-linux-amd64.tar.gz \
+	&& mv linux-amd64/helm /usr/local/bin/helm \
+	&& rm -rf linux-amd64 \
+	&& rm -f helm-v2.7.2-linux-amd64.tar.gz
+
 RUN pip install eb
 
 RUN apt-get clean
