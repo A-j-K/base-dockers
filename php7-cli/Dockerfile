@@ -69,6 +69,7 @@ RUN cd /tmp/build && unzip -q php-$PHP_VER.zip \
 		--with-config-file-path="$PHP_INI_DIR" \
 		--with-config-file-scan-dir="$PHP_INI_DIR/conf.d" \
 		--disable-cgi \
+		--enable-embed=shared \
 		--enable-mysqlnd \
 		--with-pdo-mysql \
 		--enable-mbstring \
@@ -203,6 +204,20 @@ RUN phpize \
 	&& make \
 	&& make install
 RUN echo "extension=zookeeper.so" > $PHP_INI_DIR/conf.d/20-zookeeper.ini 
+WORKDIR /
+RUN rm -rf /tmp/build
+
+RUN apt-get install -y librdkafka1 librdkafka-dev
+RUN mkdir -p /tmp/build
+WORKDIR /tmp/build
+COPY dist/php-rdkafka.zip /tmp/build/php-rdkafka.zip
+RUN unzip php-rdkafka.zip
+WORKDIR /tmp/build/php-rdkafka-php7
+RUN phpize \
+	&& ./configure \
+	&& make \
+	&& make install
+RUN echo "extension=rdkafka.so" > $PHP_INI_DIR/conf.d/30-rdkafka.ini 
 WORKDIR /
 RUN rm -rf /tmp/build
 
