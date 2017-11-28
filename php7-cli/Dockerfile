@@ -1,7 +1,7 @@
 FROM debian:jessie
 MAINTAINER Andy Kirkham <andy@spiders-lair.com>
 
-ARG PHP_VER="7.1.11"
+ARG PHP_VER="7.1.12"
 
 ENV DEBIAN_FRONTEND noninteractive
 
