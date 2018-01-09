@@ -1,7 +1,7 @@
 FROM debian:jessie
 MAINTAINER Andy Kirkham <andy@spiders-lair.com>
 
-ARG PHP_VER="7.1.12"
+ARG PHP_VER="7.1.13"
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -218,6 +218,21 @@ RUN phpize \
 	&& make \
 	&& make install
 RUN echo "extension=rdkafka.so" > $PHP_INI_DIR/conf.d/30-rdkafka.ini 
+WORKDIR /
+RUN rm -rf /tmp/build
+
+RUN apt-get install -y libzookeeper2 
+#RUN apt-get install -y libzookeeper-st2 libzookeeper-st-dev
+RUN mkdir -p /tmp/build
+WORKDIR /tmp/build
+COPY dist/php-zookeeper-0.4.0 /tmp/build/php-zookeeper-0.4.0
+RUN tar -zxf php-zookeeper-0.4.0
+WORKDIR /tmp/build/zookeeper-0.4.0
+RUN phpize \
+	&& ./configure \
+	&& make \
+	&& make install
+RUN echo "extension=zookeeper.so" > $PHP_INI_DIR/conf.d/30-zookeeper.ini
 WORKDIR /
 RUN rm -rf /tmp/build
 
