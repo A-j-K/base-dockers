@@ -1,7 +1,7 @@
 FROM debian:jessie
 MAINTAINER Andy Kirkham <andy@spiders-lair.com>
 
-ARG PHP_VER="7.1.12"
+ARG PHP_VER="7.2.1"
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -182,15 +182,15 @@ RUN echo "extension=amqp.so" > $PHP_INI_DIR/conf.d/99-amqp.ini
 WORKDIR /
 RUN rm -rf /tmp/build
 
-RUN mkdir -p /tmp/build
-COPY dist/yaf-3.0.3.zip /tmp/build/yaf-3.0.3.zip
-WORKDIR /tmp/build
-RUN unzip -q yaf-3.0.3.zip && rm yaf-3.0.3.zip
-WORKDIR /tmp/build/yaf-yaf-3.0.3
-RUN phpize && ./configure && make && make install
-RUN echo "extension=yaf.so" > $PHP_INI_DIR/conf.d/99-yaf.ini
-WORKDIR /
-RUN rm -rf /tmp/build
+#RUN mkdir -p /tmp/build
+#COPY dist/yaf-3.0.3.zip /tmp/build/yaf-3.0.3.zip
+#WORKDIR /tmp/build
+#RUN unzip -q yaf-3.0.3.zip && rm yaf-3.0.3.zip
+#WORKDIR /tmp/build/yaf-yaf-3.0.3
+#RUN phpize && ./configure && make && make install
+#RUN echo "extension=yaf.so" > $PHP_INI_DIR/conf.d/99-yaf.ini
+#WORKDIR /
+#RUN rm -rf /tmp/build
 
 RUN a2enmod rewrite
 
@@ -239,6 +239,20 @@ RUN phpize \
 	&& make \
 	&& make install
 RUN echo "extension=zookeeper.so" > $PHP_INI_DIR/conf.d/20-zookeeper.ini 
+WORKDIR /
+RUN rm -rf /tmp/build
+
+RUN apt-get install -y librdkafka1 librdkafka-dev
+RUN mkdir -p /tmp/build
+WORKDIR /tmp/build
+COPY dist/php-rdkafka.zip /tmp/build/php-rdkafka.zip
+RUN unzip php-rdkafka.zip
+WORKDIR /tmp/build/php-rdkafka-php7
+RUN phpize \
+	&& ./configure \
+	&& make \
+	&& make install
+RUN echo "extension=rdkafka.so" > $PHP_INI_DIR/conf.d/30-rdkafka.ini 
 WORKDIR /
 RUN rm -rf /tmp/build
 

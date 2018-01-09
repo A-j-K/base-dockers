@@ -1,7 +1,7 @@
 FROM debian:jessie
 MAINTAINER Andy Kirkham <andy@spiders-lair.com>
 
-ARG PHP_VER="7.1.13"
+ARG PHP_VER="7.2.1"
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -149,15 +149,15 @@ RUN echo "extension=memcached.so" > $PHP_INI_DIR/conf.d/99-memcached.ini
 WORKDIR /
 RUN rm -rf /tmp/build
 
-RUN mkdir -p /tmp/build
-COPY dist/yaf-3.0.3.zip /tmp/build/yaf-3.0.3.zip
-WORKDIR /tmp/build
-RUN unzip -q yaf-3.0.3.zip && rm yaf-3.0.3.zip
-WORKDIR /tmp/build/yaf-yaf-3.0.3
-RUN phpize && ./configure && make && make install
-RUN echo "extension=yaf.so" > $PHP_INI_DIR/conf.d/99-yaf.ini
-WORKDIR /
-RUN rm -rf /tmp/build
+#RUN mkdir -p /tmp/build
+#COPY dist/yaf-3.0.3.zip /tmp/build/yaf-3.0.3.zip
+#WORKDIR /tmp/build
+#RUN unzip -q yaf-3.0.3.zip && rm yaf-3.0.3.zip
+#WORKDIR /tmp/build/yaf-yaf-3.0.3
+#RUN phpize && ./configure && make && make install
+#RUN echo "extension=yaf.so" > $PHP_INI_DIR/conf.d/99-yaf.ini
+#WORKDIR /
+#RUN rm -rf /tmp/build
 
 ARG JANSSON_VER="2.10"
 RUN mkdir -p /tmp/build 
@@ -218,21 +218,6 @@ RUN phpize \
 	&& make \
 	&& make install
 RUN echo "extension=rdkafka.so" > $PHP_INI_DIR/conf.d/30-rdkafka.ini 
-WORKDIR /
-RUN rm -rf /tmp/build
-
-RUN apt-get install -y libzookeeper2 
-#RUN apt-get install -y libzookeeper-st2 libzookeeper-st-dev
-RUN mkdir -p /tmp/build
-WORKDIR /tmp/build
-COPY dist/php-zookeeper-0.4.0 /tmp/build/php-zookeeper-0.4.0
-RUN tar -zxf php-zookeeper-0.4.0
-WORKDIR /tmp/build/zookeeper-0.4.0
-RUN phpize \
-	&& ./configure \
-	&& make \
-	&& make install
-RUN echo "extension=zookeeper.so" > $PHP_INI_DIR/conf.d/30-zookeeper.ini
 WORKDIR /
 RUN rm -rf /tmp/build
 
