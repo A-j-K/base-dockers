@@ -1,40 +1,76 @@
 FROM ubuntu:16.04
 MAINTAINER Andy Kirkham <andy@spiders-lair.com>
 
-ARG AWS_SDK_CPP_VER
-ENV AWS_SDK_CPP_VER ${AWS_SDK_CPP_VER:-1.3.42}
+ARG AWS_SDK_CPP_VER_MAJOR
+ENV AWS_SDK_CPP_VER_MAJOR ${AWS_SDK_CPP_VER_MAJOR:-1}
+ARG AWS_SDK_CPP_VER_MINOR
+ENV AWS_SDK_CPP_VER_MINOR ${AWS_SDK_CPP_VER_MINOR:-3}
+ARG AWS_SDK_CPP_VER_PATCH
+ENV AWS_SDK_CPP_VER_PATCH ${AWS_SDK_CPP_VER_PATCH:-43}
+
+ENV AWS_SDK_CPP_VER "${AWS_SDK_CPP_VER_MAJOR}.${AWS_SDK_CPP_VER_MINOR}"
+ENV AWS_SDK_CPP_VERSION "${AWS_SDK_CPP_VER}.${AWS_SDK_CPP_VER_PATCH}"
+
+ARG CMAKE_VER_MAJOR
+ENV CMAKE_VER_MAJOR ${CMAKE_VER_MAJOR:-3}
+ARG CMAKE_VER_MINOR
+ENV CMAKE_VER_MINOR ${CMAKE_VER_MINOR:-10}
+ARG CMAKE_VER_PATCH
+ENV CMAKE_VER_PATCH ${CMAKE_VER_PATCH:-2}
+
+ENV CMAKE_VER "${CMAKE_VER_MAJOR}.${CMAKE_VER_MINOR}"
+ENV CMAKE_VERSION "${CMAKE_VER}.${CMAKE_VER_PATCH}"
+
 ENV DEBIAN_FRONTEND noninteractive
 
-ENV DEPS \
-	build-essential \
-	autoconf \
-	g++ \
-	gcc \
-	make \
-	apt-utils \
-	ca-certificates \
+# These libs are required by the AWS C++ SDK and should remain inside
+# of any child container using this image as a base image.
+ENV REQUIRED_LIBS \
 	libssl-dev \
 	libcurl4-openssl-dev \
 	curl \
 	libxml2 \
+	libc-dev \
+	libpulse-dev \
+	ca-certificates 
+
+# These installs are required for compiling the AWS C++ SDK. It is probable
+# that any child image will also need these to compile their projects. But as
+# with USEFUL_TOOLS below, could be removed from the final release build image
+# to save image space.
+ENV BUILD_TOOLS \
+	build-essential \
+	autoconf \
+	g++ \
+	gcc \
+	make 
+	
+# If you use this container as a base image then the following
+# installs can be removed from the final image to save image space.
+# I install them here as they are useful during development.
+ENV USEFUL_TOOLS \
+	apt-utils \
 	vim \
 	wget \
 	mysql-client \
 	xz-utils \
-	libc-dev \
 	file \
 	mlocate \
-	unzip \
-	libpulse-dev
+	unzip
 
-RUN apt-get update && apt-get install -y $DEPS --no-install-recommends
+RUN apt-get update \
+	&& apt-get install -y \
+	$BUILD_TOOLS \
+	$REQUIRED_LIBS \
+	$USEFUL_TOOLS \
+	--no-install-recommends
 
-# Install CMake
-RUN mkdir -p /tmp/build
-COPY dist/cmake-3.10.2-Linux-x86_64.tar.gz /tmp/build
+# Install a modern version of CMake
+RUN mkdir -p /tmp/build 
 WORKDIR /tmp/build
-RUN tar -v -zxf cmake-3.10.2-Linux-x86_64.tar.gz
-WORKDIR /tmp/build/cmake-3.10.2-Linux-x86_64
+RUN curl -sSL https://cmake.org/files/v${CMAKE_VER}/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz > cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz
+RUN tar -v -zxf cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz
+WORKDIR /tmp/build/cmake-${CMAKE_VERSION}-Linux-x86_64
 RUN cp -rp bin/* /usr/local/bin/
 RUN cp -rp share/* /usr/local/share/
 RUN cp -rp man/* /usr/local/man/
@@ -42,17 +78,18 @@ RUN cp -rp doc/* /usr/local/doc/
 WORKDIR /
 RUN rm -rf /tmp/build
 
+# Compile and install the AWS C++ SDK
 RUN mkdir -p /tmp/build/build
-COPY dist/aws-sdk-cpp-${AWS_SDK_CPP_VER}.zip /tmp/build/
 WORKDIR /tmp/build
-RUN unzip aws-sdk-cpp-${AWS_SDK_CPP_VER}.zip && rm -f aws-sdk-cpp-${AWS_SDK_CPP_VER}.zip
+RUN curl -sSL https://github.com/aws/aws-sdk-cpp/archive/${AWS_SDK_CPP_VERSION}.zip > aws-sdk-cpp-${AWS_SDK_CPP_VERSION}.zip
+RUN unzip aws-sdk-cpp-${AWS_SDK_CPP_VERSION}.zip && rm -f aws-sdk-cpp-${AWS_SDK_CPP_VERSION}.zip
 WORKDIR /tmp/build/build
-RUN cmake -DCMAKE_BUILD_TYPE=Release ../aws-sdk-cpp-${AWS_SDK_CPP_VER} \
+RUN cmake -DCMAKE_BUILD_TYPE=Release ../aws-sdk-cpp-${AWS_SDK_CPP_VERSION} \
 	&& make \
 	&& make install \
 	&& make clean \
 	&& cd /tmp/build \
-	&& rm -rf aws-sdk-cpp-${AWS_SDK_CPP_VER} \
+	&& rm -rf aws-sdk-cpp-${AWS_SDK_CPP_VERSION} \
 	&& rm -rf build
 WORKDIR /tmp
 RUN rm -rf *
