@@ -25,7 +25,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # These libs are required by the AWS C++ SDK and should remain inside
 # of any child container using this image as a base image.
-ENV REQUIRED_LIBS \
+ENV AWS_SDK_CPP_REQUIRED_LIBS \
 	libssl-dev \
 	libcurl4-openssl-dev \
 	curl \
@@ -38,7 +38,7 @@ ENV REQUIRED_LIBS \
 # that any child image will also need these to compile their projects. But as
 # with USEFUL_TOOLS below, could be removed from the final release build image
 # to save image space.
-ENV BUILD_TOOLS \
+ENV AWS_SDK_CPP_BUILD_TOOLS \
 	build-essential \
 	autoconf \
 	g++ \
@@ -48,7 +48,7 @@ ENV BUILD_TOOLS \
 # If you use this container as a base image then the following
 # installs can be removed from the final image to save image space.
 # I install them here as they are useful during development.
-ENV USEFUL_TOOLS \
+ENV AWS_SDK_CPP_USEFUL_TOOLS \
 	apt-utils \
 	vim \
 	wget \
@@ -60,9 +60,9 @@ ENV USEFUL_TOOLS \
 
 RUN apt-get update \
 	&& apt-get install -y \
-	$BUILD_TOOLS \
-	$REQUIRED_LIBS \
-	$USEFUL_TOOLS \
+	$AWS_SDK_CPP_BUILD_TOOLS \
+	$AWS_SDK_CPP_REQUIRED_LIBS \
+	$AWS_SDK_CPP_USEFUL_TOOLS \
 	--no-install-recommends
 
 # Install a modern version of CMake
