@@ -1,4 +1,4 @@
-FROM andykirkham/aws-sdk-cpp:latest
+FROM andykirkham/aws-sdk-cpp:1.3.43
 MAINTAINER Andy Kirkham <andy@spiders-lair.com>
 
 ARG PROXYGEN_VER
