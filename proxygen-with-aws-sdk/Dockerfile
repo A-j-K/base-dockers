@@ -1,10 +1,7 @@
 FROM andykirkham/aws-sdk-cpp:1.3.43
 MAINTAINER Andy Kirkham <andy@spiders-lair.com>
-
 ARG PROXYGEN_VER
-ENV PROXYGEN_VER ${PROXYGEN_VER:-2018.01.22.00}
-
-WORKDIR /tmp
+COPY mydeps.sh /mydeps.sh
 RUN 	apt-get update \
 	&& apt-get install -y sudo autoconf-archive automake \
 	&& cd /tmp \
@@ -12,11 +9,9 @@ RUN 	apt-get update \
 	&& unzip proxygen.zip \
 	&& rm -f proxygen.zip \
 	&& cd /tmp/proxygen-${PROXYGEN_VER}/proxygen \
-	&& ./deps.sh \
+	&& cp /mydeps.sh mydeps.sh \
+	&& ./mydeps.sh \
 	&& cd /tmp \
 	&& rm -rf proxygen-${PROXYGEN_VER} \
-	&& apt-get remove -y sudo \
 	&& apt-get clean
-
-WORKDIR /
 
