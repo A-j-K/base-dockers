@@ -68,31 +68,28 @@ RUN apt-get update \
 # Install a modern version of CMake
 RUN mkdir -p /tmp/build 
 WORKDIR /tmp/build
-RUN curl -sSL https://cmake.org/files/v${CMAKE_VER}/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz > cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz
-RUN tar -v -zxf cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz
-WORKDIR /tmp/build/cmake-${CMAKE_VERSION}-Linux-x86_64
-RUN cp -rp bin/* /usr/local/bin/
-RUN cp -rp share/* /usr/local/share/
-RUN cp -rp man/* /usr/local/man/
-RUN cp -rp doc/* /usr/local/doc/
-WORKDIR /
-RUN rm -rf /tmp/build
+RUN curl -sSL https://cmake.org/files/v${CMAKE_VER}/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz > cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz \
+	&& tar -v -zxf cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz \
+	&& rm -f cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz \
+	&& cd cmake-${CMAKE_VERSION}-Linux-x86_64 \
+	&& cp -rp bin/* /usr/local/bin/ \
+	&& cp -rp share/* /usr/local/share/ \
+	&& cd / && rm -rf /tmp/build 
 
 # Compile and install the AWS C++ SDK
 RUN mkdir -p /tmp/build/build
 WORKDIR /tmp/build
-RUN curl -sSL https://github.com/aws/aws-sdk-cpp/archive/${AWS_SDK_CPP_VERSION}.zip > aws-sdk-cpp-${AWS_SDK_CPP_VERSION}.zip
-RUN unzip aws-sdk-cpp-${AWS_SDK_CPP_VERSION}.zip && rm -f aws-sdk-cpp-${AWS_SDK_CPP_VERSION}.zip
-WORKDIR /tmp/build/build
-RUN cmake -DCMAKE_BUILD_TYPE=Release ../aws-sdk-cpp-${AWS_SDK_CPP_VERSION} \
+RUN curl -sSL https://github.com/aws/aws-sdk-cpp/archive/${AWS_SDK_CPP_VERSION}.zip > aws-sdk-cpp-${AWS_SDK_CPP_VERSION}.zip \
+	&& unzip aws-sdk-cpp-${AWS_SDK_CPP_VERSION}.zip \
+	&& rm -f aws-sdk-cpp-${AWS_SDK_CPP_VERSION}.zip \
+	&& cd /tmp/build/build \
+	&& cmake -DCMAKE_BUILD_TYPE=Release ../aws-sdk-cpp-${AWS_SDK_CPP_VERSION} \
+	&& cmake -DCMAKE_BUILD_TYPE=Release ../aws-sdk-cpp-${AWS_SDK_CPP_VERSION} \
 	&& make \
 	&& make install \
 	&& make clean \
-	&& cd /tmp/build \
-	&& rm -rf aws-sdk-cpp-${AWS_SDK_CPP_VERSION} \
-	&& rm -rf build
-WORKDIR /tmp
-RUN rm -rf *
+	&& cd / \
+	&& rm -rf /tmp/build
 WORKDIR /
 
 
