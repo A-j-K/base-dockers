@@ -9,7 +9,7 @@ docker build \
 	--build-arg CMAKE_VER_MAJOR="3" \
 	--build-arg CMAKE_VER_MINOR="10" \
 	--build-arg CMAKE_VER_PATCH="2" \
-	--build-arg BUILD_SHARED_LIBS="ON" \
+	--build-arg BUILD_SHARED_LIBS="OFF" \
 	--tag aws-sdk-cpp:${AWS_SDK_CPP_VERSION} \
 	.
 
