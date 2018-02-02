@@ -21,6 +21,9 @@ ENV CMAKE_VER_PATCH ${CMAKE_VER_PATCH:-2}
 ENV CMAKE_VER "${CMAKE_VER_MAJOR}.${CMAKE_VER_MINOR}"
 ENV CMAKE_VERSION "${CMAKE_VER}.${CMAKE_VER_PATCH}"
 
+ARG ENABLE_UNITY_BUILD
+ENV ENABLE_UNITY_BUILD "${ENABLE_UNITY_BUILD}:-OFF"
+
 ARG BUILD_SHARED_LIBS
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -58,41 +61,40 @@ ENV AWS_SDK_CPP_USEFUL_TOOLS \
 	xz-utils \
 	file \
 	mlocate \
-	unzip
+	unzip \
+	git
 
 RUN apt-get update \
 	&& apt-get install -y \
 	$AWS_SDK_CPP_BUILD_TOOLS \
 	$AWS_SDK_CPP_REQUIRED_LIBS \
 	$AWS_SDK_CPP_USEFUL_TOOLS \
-	--no-install-recommends
-
-# Install a modern version of CMake
-RUN mkdir -p /tmp/build 
-WORKDIR /tmp/build
-RUN curl -sSL https://cmake.org/files/v${CMAKE_VER}/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz > cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz \
+	--no-install-recommends \
+	&& mkdir -p /tmp/build && cd /tmp/build \
+	&& curl -sSL https://cmake.org/files/v${CMAKE_VER}/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz > cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz \
 	&& tar -v -zxf cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz \
 	&& rm -f cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz \
 	&& cd cmake-${CMAKE_VERSION}-Linux-x86_64 \
 	&& cp -rp bin/* /usr/local/bin/ \
 	&& cp -rp share/* /usr/local/share/ \
-	&& cd / && rm -rf /tmp/build 
-
-# Compile and install the AWS C++ SDK
-RUN mkdir -p /tmp/build/build
-WORKDIR /tmp/build
-RUN curl -sSL https://github.com/aws/aws-sdk-cpp/archive/${AWS_SDK_CPP_VERSION}.zip > aws-sdk-cpp-${AWS_SDK_CPP_VERSION}.zip \
+	&& cd / && rm -rf /tmp/build \
+	&& mkdir -p /tmp/build/build && cd /tmp/build \
+	&& curl -sSL https://github.com/aws/aws-sdk-cpp/archive/${AWS_SDK_CPP_VERSION}.zip > aws-sdk-cpp-${AWS_SDK_CPP_VERSION}.zip \
 	&& unzip aws-sdk-cpp-${AWS_SDK_CPP_VERSION}.zip \
 	&& rm -f aws-sdk-cpp-${AWS_SDK_CPP_VERSION}.zip \
 	&& cd /tmp/build/build \
-	&& cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS} ../aws-sdk-cpp-${AWS_SDK_CPP_VERSION} \
+	&& cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DENABLE_TESTING=OFF \
+		-DAUTORUN_UNIT_TESTS=OFF \
+		-DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS} \
+		-DENABLE_UNITY_BUILD=${ENABLE_UNITY_BUILD} \
+		../aws-sdk-cpp-${AWS_SDK_CPP_VERSION} \
 	&& make \
 	&& make install \
 	&& make clean \
 	&& cd / \
-	&& rm -rf /tmp/build
-WORKDIR /
-
-
+	&& rm -rf /tmp/build \
+	&& rm -rf /var/lib/apt/lists/* 
 
 

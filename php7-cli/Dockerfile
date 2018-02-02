@@ -1,9 +1,13 @@
-FROM debian:jessie
+FROM debian:stretch-slim
 MAINTAINER Andy Kirkham <andy@spiders-lair.com>
 
-ARG PHP_VER="7.2.1"
-
-ENV DEBIAN_FRONTEND noninteractive
+ARG PHP_VER
+ENV	PHP_RDKAFKA_VER="3.0.5" \
+	PHP_ZOOKEEPER_VER="0.4.0" \
+	LIB_ZOOKEEPER_VER="3.4.11" \
+	PHP_MEMCACHED_VER="3.0.4" \
+	LIB_JANSSON_VER="2.10" \
+	PHP_INI_DIR="/usr/local/etc/php" 
 
 ENV DEPS_TEMP \
 	build-essential \
@@ -16,56 +20,55 @@ ENV DEPS_TEMP \
 	cmake
 
 ENV DEPS \
-	apt-utils \
+	curl \
 	ca-certificates \
-	file \
+	libargon2-0-dev \
 	libc-dev \
-	pkg-config \
 	libffi-dev \
 	libssl-dev \
 	libxslt1-dev \
 	libxml2 \
 	libxml2-dev \
-	curl \
 	libcurl3 \
 	libedit2 \
 	libsqlite3-0 \
-	libxml2 \
-	xz-utils \
-	vim \
-	mlocate \
-	wget \
-	unzip \
-	libmysqlclient-dev \
-	libmysqlclient18 \
-	mysql-client \
+	default-libmysqlclient-dev \
 	libbison-dev \
 	libcurl4-gnutls-dev \
 	libedit-dev \
-	libevent-dev \
-	libzmq3-dev \
-	libnanomsg-dev \
-	libmemcached-dev \
 	libev-dev \
-	librabbitmq-dev \
-	librabbitmq1 \
+	libsodium-dev 
+
+ENV DEPS_TOOLS \
+	mysql-client \
+	pkg-config \
+	apt-utils \
+	mlocate \
+	vim \
 	ssh \
+	wget \
+	xz-utils \
+	unzip \
+	file \
 	git
 
-RUN apt-get update && apt-get install -y $DEPS $DEPS_TEMP --no-install-recommends
-
-RUN mkdir -p /tmp/build
-
-RUN curl -sSL https://github.com/php/php-src/archive/php-$PHP_VER.zip > /tmp/build/php-$PHP_VER.zip
-
-ENV PHP_INI_DIR /usr/local/etc/php
-
-RUN cd /tmp/build && unzip -q php-$PHP_VER.zip \
+RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
+	&& echo 'Pin: release *' >> /etc/apt/preferences.d/no-debian-php \
+	&& echo 'Pin-Priority: -1' >> /etc/apt/preferences.d/no-debian-php \
+	&& DEBIAN_FRONTEND=noninteractive apt-get update \
+	&& DEBIAN_FRONTEND=noninteractive apt-get install -y \
+		$DEPS $DEPS_TEMP $DEPS_TOOLS --no-install-recommends \
+	&& mkdir -p /tmp/build \
+	&& curl -sSL https://github.com/php/php-src/archive/php-$PHP_VER.zip > /tmp/build/php-$PHP_VER.zip \
+	&& cd /tmp/build && unzip -q php-$PHP_VER.zip \
 	&& rm -f php-$PHP_VER.zip \
 	&& cd /tmp/build/php-src-php-$PHP_VER \
 	&& mkdir -p $PHP_INI_DIR/conf.d \
 	&& ./buildconf --force \
-	&& ./configure \
+	&& gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
+	   debMultiarch="$(dpkg-architecture --query DEB_BUILD_MULTIARCH)"; \ 
+	  ./configure \
+		--build="$gnuArch" \
 		--with-config-file-path="$PHP_INI_DIR" \
 		--with-config-file-scan-dir="$PHP_INI_DIR/conf.d" \
 		--disable-cgi \
@@ -80,155 +83,120 @@ RUN cd /tmp/build && unzip -q php-$PHP_VER.zip \
 		--enable-pcntl \
 		--with-zlib \
 		--without-pear \
+		--with-sodium \
+		--with-password-argon2 \
+		--enable-ftp \
+		$(test "$gnuArch" = 's390x-linux-gnu' && echo '--without-pcre-jit') \
+		--with-libdir="lib/$debMultiarch" \
 	&& make -j"$(nproc)" \
 	&& make install \
-	&& { find /usr/local/bin /usr/local/sbin -type f -executable -exec strip --strip-all '{}' + || true; } \
 	&& make clean \
 	&& cd / \
-	&& rm -rf /tmp/build
-
-RUN mkdir -p /tmp/build
-COPY dist/cmake-3.8.0-rc1-Linux-x86_64.tar.gz /tmp/build
-WORKDIR /tmp/build
-RUN tar -v -zxf cmake-3.8.0-rc1-Linux-x86_64.tar.gz 
-WORKDIR /tmp/build/cmake-3.8.0-rc1-Linux-x86_64
-RUN cp -rp bin/* /usr/local/bin/
-RUN cp -rp share/* /usr/local/share/
-RUN cp -rp man/* /usr/local/man/
-RUN cp -rp doc/* /usr/local/doc/
-WORKDIR /
-RUN rm -rf /tmp/build
-
-RUN mkdir -p /tmp/build
-COPY dist/pecl-event-libevent.zip /tmp/build
-WORKDIR /tmp/build
-RUN unzip pecl-event-libevent.zip && rm pecl-event-libevent.zip
-WORKDIR /tmp/build/pecl-event-libevent-master
-RUN phpize && ./configure && make && make install
-RUN echo "extension=libevent.so" > $PHP_INI_DIR/conf.d/98-libevent.ini
-WORKDIR /
-RUN rm -rf /tmp/build
-
-RUN mkdir -p /tmp/build
-COPY dist/pecl-zeromq.zip /tmp/build
-WORKDIR /tmp/build
-RUN unzip pecl-zeromq.zip && rm pecl-zeromq.zip
-WORKDIR /tmp/build/php-zmq-master
-RUN phpize && ./configure && make && make install
-RUN echo "extension=zmq.so" > $PHP_INI_DIR/conf.d/99-zeromq.ini
-WORKDIR /
-RUN rm -rf /tmp/build
-
-RUN mkdir -p /tmp/build
-COPY dist/pecl-nanomsg.tgz /tmp/build/pecl-nanomsg.tgz
-WORKDIR /tmp/build
-RUN tar -v -zxf pecl-nanomsg.tgz && rm pecl-nanomsg.tgz
-WORKDIR /tmp/build/php-nano-master
-RUN phpize && ./configure && make && make install
-RUN echo "extension=nano.so" > $PHP_INI_DIR/conf.d/99-nanomsg.ini
-WORKDIR /
-RUN rm -rf /tmp/build
-
-RUN mkdir -p /tmp/build
-COPY dist/pecl-php-amqp.zip /tmp/build/pecl-php-amqp.zip
-WORKDIR /tmp/build
-RUN unzip pecl-php-amqp.zip && rm pecl-php-amqp.zip
-WORKDIR /tmp/build/php-amqp-1.7.1
-RUN phpize && ./configure && make && make install
-RUN echo "extension=amqp.so" > $PHP_INI_DIR/conf.d/99-amqp.ini
-WORKDIR /
-RUN rm -rf /tmp/build
-
-RUN mkdir -p /tmp/build
-COPY dist/pecl-memcached.zip /tmp/build/pecl-memcached.zip
-WORKDIR /tmp/build
-RUN unzip pecl-memcached.zip && rm pecl-memcached.zip
-WORKDIR /tmp/build/php-memcached-php7
-RUN phpize && ./configure && make && make install
-RUN echo "extension=memcached.so" > $PHP_INI_DIR/conf.d/99-memcached.ini
-WORKDIR /
-RUN rm -rf /tmp/build
-
-#RUN mkdir -p /tmp/build
-#COPY dist/yaf-3.0.3.zip /tmp/build/yaf-3.0.3.zip
-#WORKDIR /tmp/build
-#RUN unzip -q yaf-3.0.3.zip && rm yaf-3.0.3.zip
-#WORKDIR /tmp/build/yaf-yaf-3.0.3
-#RUN phpize && ./configure && make && make install
-#RUN echo "extension=yaf.so" > $PHP_INI_DIR/conf.d/99-yaf.ini
-#WORKDIR /
-#RUN rm -rf /tmp/build
-
-ARG JANSSON_VER="2.10"
-RUN mkdir -p /tmp/build 
-WORKDIR /tmp/build
-RUN curl -sSL https://github.com/akheron/jansson/archive/v$JANSSON_VER.zip > jansson-$JANSSON_VER.zip
-RUN unzip jansson-$JANSSON_VER.zip
-WORKDIR /tmp/build/jansson-$JANSSON_VER
-RUN mkdir /tmp/build/jansson-$JANSSON_VER/build
-WORKDIR /tmp/build/jansson-$JANSSON_VER/build
-RUN cmake .. && make && make install
-WORKDIR /
-RUN rm -rf /tmp/build
-
-RUN mkdir -p /tmp/build
-WORKDIR /tmp/build
-RUN curl -sSL https://github.com/stellartech/phpjansson/archive/master.zip > php_jansson.zip
-RUN unzip php_jansson.zip
-WORKDIR /tmp/build/phpjansson-master
-RUN phpize \
-	&& ./configure --with-jansson \
-	&& make \
-	&& make install
-RUN echo "extension=jansson.so" > $PHP_INI_DIR/conf.d/99-jansson.ini 
-WORKDIR /
-RUN rm -rf /tmp/build
-
-RUN mkdir -p /tmp/build
-WORKDIR /tmp/build
-RUN curl -sSL http://mirrorservice.org/sites/ftp.apache.org/zookeeper/zookeeper-3.4.11/zookeeper-3.4.11.tar.gz > zookeeper-3.4.11.tar.gz
-RUN tar -zxf zookeeper-3.4.11.tar.gz
-WORKDIR /tmp/build/zookeeper-3.4.11/src/c
-RUN ./configure --prefix=/usr/
-RUN make && make install
-WORKDIR /
-RUN rm -rf /tmp/build
-
-RUN mkdir -p /tmp/build
-WORKDIR /tmp/build
-COPY dist/php-zookeeper.zip /tmp/build/php-zookeeper.zip
-RUN unzip php-zookeeper.zip
-WORKDIR /tmp/build/php-zookeeper-php7
-RUN phpize \
-	&& ./configure \
-	&& make \
-	&& make install
-RUN echo "extension=zookeeper.so" > $PHP_INI_DIR/conf.d/20-zookeeper.ini 
-WORKDIR /
-RUN rm -rf /tmp/build
-
-RUN apt-get install -y librdkafka1 librdkafka-dev
-RUN mkdir -p /tmp/build
-WORKDIR /tmp/build
-COPY dist/php-rdkafka.zip /tmp/build/php-rdkafka.zip
-RUN unzip php-rdkafka.zip
-WORKDIR /tmp/build/php-rdkafka-php7
-RUN phpize \
-	&& ./configure \
-	&& make \
-	&& make install
-RUN echo "extension=rdkafka.so" > $PHP_INI_DIR/conf.d/30-rdkafka.ini 
-WORKDIR /
-RUN rm -rf /tmp/build
-
-RUN echo "zend_extension=opcache.so" > $PHP_INI_DIR/conf.d/01-opcache.ini 
-
-# Clean up.
-#RUN apt-get remove -y $DEPS_TEMP \
-#	&& apt-get autoremove -y \
-#	&& rm -r /var/lib/apt/lists/*
-
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-
+	&& rm -rf /tmp/build \
+# CMake
+	&& mkdir -p /tmp/build \
+	&& cd /tmp/build \
+	&& curl -sSL https://cmake.org/files/v3.10/cmake-3.10.2-Linux-x86_64.tar.gz > cmake.tgz \
+	&& tar -zxf cmake.tgz && rm -f cmake.tgz \
+	&& cd cmake*/ \
+	&& cp -rp bin/* /usr/local/bin/ \
+	&& cp -rp share/* /usr/local/share/ \
+	&& cp -rp man/* /usr/local/man/ \
+	&& cp -rp doc/* /usr/local/doc/ \
+	&& cd / \
+	&& rm -rf /tmp/build \
+# Libevent
+	&& DEBIAN_FRONTEND=noninteractive apt-get install -y libevent-dev \
+	&& mkdir -p /tmp/build && cd /tmp/build \
+	&& cd /tmp/build \
+	&& curl -sSL https://github.com/expressif/pecl-event-libevent/archive/master.zip > libevent.zip \
+	&& unzip libevent.zip && rm -f libevent.zip \
+	&& cd pecl-event-libevent-master \
+	&& phpize && ./configure && make && make install \
+	&& echo "extension=libevent.so" > $PHP_INI_DIR/conf.d/98-libevent.ini \
+	&& cd / && rm -rf /tmp/build \
+# ZMQ
+	&& DEBIAN_FRONTEND=noninteractive apt-get install -y libzmq3-dev \
+	&& mkdir -p /tmp/build && cd /tmp/build \
+	&& curl -sSL https://github.com/mkoppanen/php-zmq/archive/master.zip > zmq.zip \
+	&& unzip zmq.zip && rm -f zmq.zip \
+	&& cd php-zmq-master \
+	&& phpize && ./configure && make && make install \
+	&& echo "extension=zmq.so" > $PHP_INI_DIR/conf.d/99-zeromq.ini \
+	&& cd / && rm -rf /tmp/build \
+# Nanomsg
+	&& DEBIAN_FRONTEND=noninteractive apt-get install -y libnanomsg-dev \
+	&& mkdir -p /tmp/build && cd /tmp/build \
+	&& curl -sSL https://github.com/mkoppanen/php-nano/archive/master.zip > nanomsg.zip \
+	&& unzip nanomsg.zip && rm -f nanmsg.zip \
+	&& cd php-nano-master \
+	&& phpize && ./configure && make && make install \
+	&& echo "extension=nano.so" > $PHP_INI_DIR/conf.d/99-nanomsg.ini \
+	&& cd / && rm -rf /tmp/build \
+# AMQP
+	&& DEBIAN_FRONTEND=noninteractive apt-get install -y librabbitmq-dev \
+	&& mkdir -p /tmp/build && cd /tmp/build \
+	&& curl -sSL https://github.com/pdezwart/php-amqp/archive/master.zip > amqp.zip \
+	&& unzip amqp.zip && rm -f amqp.zip \
+	&& cd php-amqp-master \
+	&& phpize && ./configure && make && make install \
+	&& echo "extension=amqp.so" > $PHP_INI_DIR/conf.d/99-amqp.ini \
+	&& cd / && rm -rf /tmp/build \
+# Memcache
+	&& DEBIAN_FRONTEND=noninteractive apt-get install -y libmemcached-dev \
+	&& mkdir -p /tmp/build && cd /tmp/build \
+	&& curl -sSL http://pecl.php.net/get/memcached-${PHP_MEMCACHED_VER}.tgz > memcached.tgz \
+	&& tar -zxf memcached.tgz && rm -f memcached.tgz \
+	&& cd memcached-${PHP_MEMCACHED_VER} \
+	&& phpize && ./configure && make && make install \
+	&& echo "extension=memcached.so" > $PHP_INI_DIR/conf.d/99-memcached.ini \
+	&& cd / && rm -rf /tmp/build \
+# Jansson
+	&& mkdir -p /tmp/build && cd /tmp/build \
+	&& curl -sSL https://github.com/akheron/jansson/archive/v$LIB_JANSSON_VER.zip > jansson-$LIB_JANSSON_VER.zip \
+	&& unzip jansson-$LIB_JANSSON_VER.zip && rm -f jansson-$LIB_JANSSON_VER.zip \
+	&& cd jansson-$LIB_JANSSON_VER \
+	&& mkdir tmpbuild && cd tmpbuild \
+	&& cmake .. && make && make install \
+	&& cd / && rm -rf /tmp/build \
+	&& mkdir -p /tmp/build && cd /tmp/build \
+	&& curl -sSL https://github.com/stellartech/phpjansson/archive/master.zip > php_jansson.zip \
+	&& unzip php_jansson.zip && rm -f php_jansson.zip \
+	&& cd phpjansson-master \
+	&& phpize && ./configure && make && make install \	
+	&& echo "extension=jansson.so" > $PHP_INI_DIR/conf.d/99-jansson.ini \
+	&& cd / && rm -rf /tmp/build \
+# Zookeeper
+	&& mkdir -p /tmp/build && cd /tmp/build \
+	&& curl -sSL http://mirrorservice.org/sites/ftp.apache.org/zookeeper/zookeeper-${LIB_ZOOKEEPER_VER}/zookeeper-${LIB_ZOOKEEPER_VER}.tar.gz > zookeeper.tgz \
+	&& tar -zxf zookeeper.tgz && rm -f zookeeper.tgz \
+	&& cd zookeeper-${LIB_ZOOKEEPER_VER} && cd src/c \
+	&& ./configure --prefix=/usr/ && make && make install \
+	&& cd / && rm -rf /tmp/build \
+	&& mkdir -p /tmp/build && cd /tmp/build \
+	&& curl -sSL http://pecl.php.net/get/zookeeper-${PHP_ZOOKEEPER_VER}.tgz > php-zookeeper.tgz \
+	&& tar -zxf php-zookeeper.tgz && rm -f php-zookeeper.tgz \
+	&& cd zookeeper-${PHP_ZOOKEEPER_VER} \
+	&& phpize && ./configure && make && make install \
+	&& echo "extension=zookeeper.so" > $PHP_INI_DIR/conf.d/20-zookeeper.ini \
+	&& cd / && rm -rf /tmp/build \
+# RdKafka
+	&& DEBIAN_FRONTEND=noninteractive apt-get install -y librdkafka1 librdkafka-dev \
+	&& mkdir -p /tmp/build && cd /tmp/build \
+	&& curl -sSL http://pecl.php.net/get/rdkafka-${PHP_RDKAFKA_VER}.tgz > rdkafka.tgz \
+	&& tar -zxf rdkafka.tgz && rm -f rdkafka.tgz \
+	&& cd rdkafka-${PHP_RDKAFKA_VER} \
+	&& phpize && ./configure && make && make install \
+	&& echo "extension=rdkafka.so" > $PHP_INI_DIR/conf.d/30-rdkafka.ini \
+	&& cd / && rm -rf /tmp/build && rm -rf /tmp/dist \
+# Enable OPCache
+	&& echo "zend_extension=opcache.so" > $PHP_INI_DIR/conf.d/01-opcache.ini \
+# Cleanup
+	&& { find /usr/local/bin /usr/local/sbin -type f -executable -exec strip --strip-all '{}' + || true; } \
+	&& DEBIAN_FRONTEND=noninteractive apt-get remove -y $DEPS_TEMP $DEPS_TOOLS \
+	&& DEBIAN_FRONTEND=noninteractive apt -y autoremove \
+	&& rm -r /var/lib/apt/lists/* \
+# Finally, Composer
+	&& echo "Installing PHP Composer" \
+	&& curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 

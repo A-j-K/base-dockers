@@ -10,11 +10,12 @@ docker build \
 	--build-arg CMAKE_VER_MINOR="10" \
 	--build-arg CMAKE_VER_PATCH="2" \
 	--build-arg BUILD_SHARED_LIBS="OFF" \
-	--tag aws-sdk-cpp:${AWS_SDK_CPP_VERSION} \
+	--build-arg ENABLE_UNITY_BUILD="ON" \
+	--tag aws-sdk-cpp-static:${AWS_SDK_CPP_VERSION} \
 	.
 
 echo "Use the following to update the Docker Hub repository"
 echo "  docker login"
-echo "  docker tag aws-sdk-cpp:${AWS_SDK_CPP_VERSION} andykirkham/aws-sdk-cpp:${AWS_SDK_CPP_VERSION}"
-echo "  docker push andykirkham/aws-sdk-cpp:${AWS_SDK_CPP_VERSION}"
+echo "  docker tag aws-sdk-cpp-static:${AWS_SDK_CPP_VERSION} andykirkham/aws-sdk-cpp:static-${AWS_SDK_CPP_VERSION}"
+echo "  docker push andykirkham/aws-sdk-cpp:static-${AWS_SDK_CPP_VERSION}"
 
