@@ -5,7 +5,7 @@
 # 1. Initial image
 #
 
-TAG_VER="x"
+TAG_VER="1"
 PHP_VER="7.2.2"
 
 docker build \
