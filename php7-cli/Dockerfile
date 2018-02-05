@@ -2,6 +2,7 @@ FROM debian:stretch-slim
 MAINTAINER Andy Kirkham <andy@spiders-lair.com>
 
 ARG PHP_VER
+ARG TAG_VER
 ENV	PHP_RDKAFKA_VER="3.0.5" \
 	PHP_ZOOKEEPER_VER="0.4.0" \
 	LIB_ZOOKEEPER_VER="3.4.11" \
@@ -37,6 +38,10 @@ ENV DEPS \
 	libcurl4-gnutls-dev \
 	libedit-dev \
 	libev-dev \
+	libgd-dev \
+	libjpeg-dev \
+	libpng-dev \
+	zlib1g-dev \
 	libsodium-dev 
 
 ENV DEPS_TOOLS \
@@ -86,13 +91,19 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 		--with-sodium \
 		--with-password-argon2 \
 		--enable-ftp \
+		--enable-exif \
+		--with-gd \
+		--with-jpeg-dir \
+		--with-png-dir \		
 		$(test "$gnuArch" = 's390x-linux-gnu' && echo '--without-pcre-jit') \
 		--with-libdir="lib/$debMultiarch" \
-	&& make -j"$(nproc)" \
+	&& echo "Compiling PHP silently, please wait..." \
+	&& make -s -j"$(nproc)" \
 	&& make install \
 	&& make clean \
 	&& cd / \
 	&& rm -rf /tmp/build \
+	&& echo -n "${PHP_VER}-${TAG_VER}" > $PHP_INI_DIR/ajk_tag_ver.txt \
 # CMake
 	&& mkdir -p /tmp/build \
 	&& cd /tmp/build \
@@ -151,21 +162,6 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& phpize && ./configure && make && make install \
 	&& echo "extension=memcached.so" > $PHP_INI_DIR/conf.d/99-memcached.ini \
 	&& cd / && rm -rf /tmp/build \
-# Jansson
-	&& mkdir -p /tmp/build && cd /tmp/build \
-	&& curl -sSL https://github.com/akheron/jansson/archive/v$LIB_JANSSON_VER.zip > jansson-$LIB_JANSSON_VER.zip \
-	&& unzip jansson-$LIB_JANSSON_VER.zip && rm -f jansson-$LIB_JANSSON_VER.zip \
-	&& cd jansson-$LIB_JANSSON_VER \
-	&& mkdir tmpbuild && cd tmpbuild \
-	&& cmake .. && make && make install \
-	&& cd / && rm -rf /tmp/build \
-	&& mkdir -p /tmp/build && cd /tmp/build \
-	&& curl -sSL https://github.com/stellartech/phpjansson/archive/master.zip > php_jansson.zip \
-	&& unzip php_jansson.zip && rm -f php_jansson.zip \
-	&& cd phpjansson-master \
-	&& phpize && ./configure && make && make install \	
-	&& echo "extension=jansson.so" > $PHP_INI_DIR/conf.d/99-jansson.ini \
-	&& cd / && rm -rf /tmp/build \
 # Zookeeper
 	&& mkdir -p /tmp/build && cd /tmp/build \
 	&& curl -sSL http://mirrorservice.org/sites/ftp.apache.org/zookeeper/zookeeper-${LIB_ZOOKEEPER_VER}/zookeeper-${LIB_ZOOKEEPER_VER}.tar.gz > zookeeper.tgz \
@@ -189,6 +185,21 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& phpize && ./configure && make && make install \
 	&& echo "extension=rdkafka.so" > $PHP_INI_DIR/conf.d/30-rdkafka.ini \
 	&& cd / && rm -rf /tmp/build && rm -rf /tmp/dist \
+# Jansson
+	&& mkdir -p /tmp/build && cd /tmp/build \
+	&& curl -sSL https://github.com/akheron/jansson/archive/v$LIB_JANSSON_VER.zip > jansson-$LIB_JANSSON_VER.zip \
+	&& unzip jansson-$LIB_JANSSON_VER.zip && rm -f jansson-$LIB_JANSSON_VER.zip \
+	&& cd jansson-$LIB_JANSSON_VER \
+	&& mkdir tmpbuild && cd tmpbuild \
+	&& cmake .. && make && make install \
+	&& cd / && rm -rf /tmp/build \
+	&& mkdir -p /tmp/build && cd /tmp/build \
+	&& curl -sSL https://github.com/stellartech/phpjansson/archive/master.zip > php_jansson.zip \
+	&& unzip php_jansson.zip && rm -f php_jansson.zip \
+	&& cd phpjansson-master \
+	&& phpize && ./configure && make && make install \	
+	&& echo "extension=jansson.so" > $PHP_INI_DIR/conf.d/99-jansson.ini \
+	&& cd / && rm -rf /tmp/build \
 # Enable OPCache
 	&& echo "zend_extension=opcache.so" > $PHP_INI_DIR/conf.d/01-opcache.ini \
 # Cleanup
