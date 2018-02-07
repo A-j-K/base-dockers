@@ -3,10 +3,9 @@
 # TAG_VER:
 #
 # 1. Initial image
-# 2. Jansson fix: https://github.com/stellartech/phpjansson/commit/fba83b91e5d2f11b6b5c73ef07799dd6ce852bda
 #
 
-TAG_VER="2"
+TAG_VER="1"
 
 if [[ -z $1 || -z $2 || -z $3 ]]; then
 	PHP_VER_MAJOR="7"
