@@ -42,12 +42,13 @@ ENV DEPS \
 	libjpeg-dev \
 	libpng-dev \
 	zlib1g-dev \
-	libsodium-dev 
+	libsodium-dev \
+	libmbedtls-dev 
 
 ENV DEPS_TOOLS \
 	mysql-client \
-	pkg-config \
 	apt-utils \
+	pkg-config \
 	mlocate \
 	vim \
 	ssh \
