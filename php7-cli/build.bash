@@ -4,13 +4,15 @@
 #
 # 1. Initial image
 # 2. Add libmbedtls-dev
+# 3. Add Ninja
+# 4. Add zip
 
-TAG_VER="2"
+TAG_VER="1"
 
 if [[ -z $1 || -z $2 || -z $3 ]]; then
 	PHP_VER_MAJOR="7"
 	PHP_VER_MINOR="2"
-	PHP_VER_PATCH="2"
+	PHP_VER_PATCH="3"
 else
 	PHP_VER_MAJOR=$1
 	PHP_VER_MINOR=$2

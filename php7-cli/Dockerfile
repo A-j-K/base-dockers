@@ -18,6 +18,7 @@ ENV DEPS_TEMP \
 	make \
 	bison \
 	re2c \
+	python \
 	cmake
 
 ENV DEPS \
@@ -41,6 +42,7 @@ ENV DEPS \
 	libgd-dev \
 	libjpeg-dev \
 	libpng-dev \
+	libzip-dev \
 	zlib1g-dev \
 	libsodium-dev \
 	libmbedtls-dev 
@@ -93,6 +95,7 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 		--with-password-argon2 \
 		--enable-ftp \
 		--enable-exif \
+		--enable-zip \
 		--with-gd \
 		--with-jpeg-dir \
 		--with-png-dir \		
@@ -105,6 +108,14 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& cd / \
 	&& rm -rf /tmp/build \
 	&& echo -n "${PHP_VER}-${TAG_VER}" > $PHP_INI_DIR/ajk_tag_ver.txt \
+# Ninja
+	&& mkdir -p /tmp/build \
+	&& cd /tmp/build \
+	&& curl -sSL https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-linux.zip > ninja-linux.zip \
+	&& unzip ninja-linux.zip \
+	&& cp ninja /usr/local/bin/ninja \
+	&& cd / \
+	&& rm -rf /tmp/build \
 # CMake
 	&& mkdir -p /tmp/build \
 	&& cd /tmp/build \
@@ -178,7 +189,12 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& echo "extension=zookeeper.so" > $PHP_INI_DIR/conf.d/20-zookeeper.ini \
 	&& cd / && rm -rf /tmp/build \
 # RdKafka
-	&& DEBIAN_FRONTEND=noninteractive apt-get install -y librdkafka1 librdkafka-dev \
+	&& mkdir -p /tmp/build && cd /tmp/build \
+	&& curl -sSL https://github.com/edenhill/librdkafka/archive/v0.11.3.zip > librdkafka.zip \
+	&& unzip librdkafka.zip && rm -f librdkafka.zip \
+	&& cd librdkafka-0.11.3 \
+	&& ./configure && make && make install \
+	&& cd .. && rm -rf librdkafka-0.11.3 \
 	&& mkdir -p /tmp/build && cd /tmp/build \
 	&& curl -sSL http://pecl.php.net/get/rdkafka-${PHP_RDKAFKA_VER}.tgz > rdkafka.tgz \
 	&& tar -zxf rdkafka.tgz && rm -f rdkafka.tgz \
