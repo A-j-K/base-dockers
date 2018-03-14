@@ -117,5 +117,5 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& apt-get clean \
 	&& rm -r /var/lib/apt/lists/* \
 	&& mkdir -p /workspace
-WORKDIR /workspace
+WORKDIR /root
 
