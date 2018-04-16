@@ -1,13 +1,6 @@
 #!/bin/bash
-#
-# TAG_VER:
-#
-# 1. Initial image
-# 2. Add libmbedtls-dev
-# 3. Add Ninja
-# 4. Add zip
 
-TAG_VER="1"
+TAG_VER="3"
 
 if [[ -z $1 || -z $2 || -z $3 ]]; then
 	PHP_VER_MAJOR="7"
