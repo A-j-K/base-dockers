@@ -81,7 +81,7 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 		--with-config-file-path="$PHP_INI_DIR" \
 		--with-config-file-scan-dir="$PHP_INI_DIR/conf.d" \
 		--disable-cgi \
-		--enable-embed=shared \
+		--enable-embed=static \
 		--enable-mysqlnd \
 		--with-pdo-mysql \
 		--enable-mbstring \
@@ -165,6 +165,15 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& cd php-amqp-master \
 	&& phpize && ./configure && make && make install \
 	&& echo "extension=amqp.so" > $PHP_INI_DIR/conf.d/99-amqp.ini \
+	&& cd / && rm -rf /tmp/build \
+# Yaml
+	&& DEBIAN_FRONTEND=noninteractive apt-get install -y libyaml-dev \
+	&& mkdir -p /tmp/build && cd /tmp/build \
+	&& curl -sSL https://github.com/php/pecl-file_formats-yaml/archive/2.0.2.zip > yaml.zip \
+	&& unzip yaml.zip && rm -f yaml.zip \
+	&& cd pecl-file_formats-yaml-2.0.2 \
+	&& phpize && ./configure && make && make install \
+	&& echo "extension=yaml.so" > $PHP_INI_DIR/conf.d/99-yaml.ini \
 	&& cd / && rm -rf /tmp/build \
 # Memcache
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y libmemcached-dev \
