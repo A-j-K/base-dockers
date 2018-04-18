@@ -3,11 +3,9 @@
 # TAG_VER:
 #
 # 1. Initial image
-# 2. Add libmbedtls-dev
-# 3. Add Ninja
-# 4. Add zip
+# 2. Add Google Protobuf pecl module
 
-TAG_VER="1"
+TAG_VER="2"
 
 if [[ -z $1 || -z $2 || -z $3 ]]; then
 	PHP_VER_MAJOR="7"

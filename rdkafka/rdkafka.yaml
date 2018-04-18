@@ -1,0 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: rdkafka-consumer
+  namespace: <your namespace to deploy into>
+  labels:
+    run: rdkafka-consumer 
+spec:
+  replicas: 1 
+  template:
+    metadata:
+      labels:
+        app: rdkafka-consumer 
+    spec:
+      containers:
+        - name: rdkafka-consumer 
+          image: andykirkham/rdkafka:0.11.4
+          env:
+          - name: BROKER
+            value: "<at least one of your broker endpoints>"
+          - name: TOPIC
+            value: "test"
+          - name: MECHANISM
+            value: "PLAIN"
+          - name: SECURITY_PROTOCOL
+            value: "sasl_ssl"
+          - name: SASL_USER
+            value: "<your user>"
+          - name: SASL_PASS
+            value: "<your password>"
+          - name: FROM
+            value: "end"
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          imagePullPolicy: Always
+

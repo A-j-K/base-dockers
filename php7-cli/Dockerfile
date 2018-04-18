@@ -8,6 +8,7 @@ ENV	PHP_RDKAFKA_VER="3.0.5" \
 	LIB_ZOOKEEPER_VER="3.4.11" \
 	PHP_MEMCACHED_VER="3.0.4" \
 	LIB_JANSSON_VER="2.10" \
+	PROTOBUF_VER="3.5.1" \
 	PHP_INI_DIR="/usr/local/etc/php" 
 
 ENV DEPS_TEMP \
@@ -216,6 +217,17 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& cd phpjansson-master \
 	&& phpize && ./configure && make && make install \	
 	&& echo "extension=jansson.so" > $PHP_INI_DIR/conf.d/99-jansson.ini \
+	&& cd / && rm -rf /tmp/build \
+# Google Protobuf
+	&& mkdir -p /tmp/build \
+	&& cd /tmp/build \
+	&& curl -OL https://github.com/google/protobuf/releases/download/v${PROTOBUF_VER}/protobuf-php-${PROTOBUF_VER}.tar.gz \
+	&& tar -zxf protobuf-php-${PROTOBUF_VER}.tar.gz && rm -f protobuf-php-${PROTOBUF_VER}.tar.gz \
+	&& cd protobuf-${PROTOBUF_VER} \
+	&& DIST_LANG=php ./configure && DIST_LANG=php make -j 4 && DIST_LANG=php make install \
+	&& cd php/ext/google/protobuf \
+	&& phpize && ./configure && DIST_LANG=php make && DIST_LANG=php make install \
+	&& echo "extension=protobuf.so" > $PHP_INI_DIR/conf.d/99-protobuf.ini \
 	&& cd / && rm -rf /tmp/build \
 # Enable OPCache
 	&& echo "zend_extension=opcache.so" > $PHP_INI_DIR/conf.d/01-opcache.ini \
