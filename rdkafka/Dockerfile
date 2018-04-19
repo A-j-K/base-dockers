@@ -23,12 +23,12 @@ ENV DEPS \
 	libcurl4-gnutls-dev \
 	libssl-dev \
 	curl \
-	unzip
+	unzip \
+	vim
 
 ENV DEPS_TOOLS \
 	apt-utils \
 	pkg-config \
-	vim \
 	ssh \
 	xz-utils 
 	
