@@ -16,7 +16,7 @@ if [[ ! -z $MECHANISM ]]; then
 		-p $PARTITION \
 		-b $BROKER \
 		-o $FROM \
-		-g $GROUP \
+		-X "group.id=$GROUP" \
 		-X "sasl.mechanisms=$MECHANISM" \
 		-X "security.protocol=$SECURITY_PROTOCOL" \
 		-X "sasl.username=$SASL_USER" \
@@ -26,7 +26,7 @@ else
 		-t $TOPIC \
 		-p $PARTITION \
 		-b $BROKER \
-		-g $GROUP \
-		-o $FROM 
+		-o $FROM \
+		-X "group.id=$GROUP" 
 fi
 
