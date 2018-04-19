@@ -20,6 +20,8 @@ spec:
             value: "<at least one of your broker endpoints>"
           - name: TOPIC
             value: "test"
+          - name: GROUP
+            value: "rdkafkatestconsumer"
           - name: MECHANISM
             value: "PLAIN"
           - name: SECURITY_PROTOCOL

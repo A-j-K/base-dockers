@@ -2,6 +2,7 @@
 
 FROM=${FROM:-"end"}
 TOPIC=${TPOIC:-"test"}
+GROUP=${GROUP:="rdkafkatestconsumer"}
 BROKER=${BROKER:-""}
 SASL_USER=${SASL_USER:-""}
 SASL_PASS=${SASL_PASS:-""}
@@ -15,6 +16,7 @@ if [[ ! -z $MECHANISM ]]; then
 		-p $PARTITION \
 		-b $BROKER \
 		-o $FROM \
+		-g $GROUP \
 		-X "sasl.mechanisms=$MECHANISM" \
 		-X "security.protocol=$SECURITY_PROTOCOL" \
 		-X "sasl.username=$SASL_USER" \
@@ -24,6 +26,7 @@ else
 		-t $TOPIC \
 		-p $PARTITION \
 		-b $BROKER \
+		-g $GROUP \
 		-o $FROM 
 fi
 
