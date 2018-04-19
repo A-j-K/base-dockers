@@ -17,6 +17,7 @@ ENV DEPS_TEMP \
 ENV DEPS \
 	bash \
 	libc-dev \
+	libsasl2-dev \
 	ca-certificates \
 	libzip-dev \
 	zlib1g-dev \
