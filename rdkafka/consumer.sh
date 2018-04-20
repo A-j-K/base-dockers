@@ -48,6 +48,7 @@ for t in $TOPIC; do
 		-X "socket.timeout.ms=30000" \
 		-X "socket.keepalive.enable=true" \
 		-X "log.connection.close=false" \
+		-X "reconnect.backoff.jitter.ms=10000" \
 		&
 done
 
