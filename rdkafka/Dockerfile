@@ -25,15 +25,14 @@ ENV DEPS \
 	libssl-dev \
 	curl \
 	unzip \
-	vim
+	vim \
+	procps
 
 ENV DEPS_TOOLS \
 	apt-utils \
 	pkg-config \
 	ssh \
 	xz-utils 
-	
-COPY consumer.sh /usr/local/bin/consumer.sh
 
 RUN	DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -52,4 +51,6 @@ RUN	DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& DEBIAN_FRONTEND=noninteractive apt-get remove -y $DEPS_TEMP $DEPS_TOOLS \
 	&& DEBIAN_FRONTEND=noninteractive apt -y autoremove \
 	&& rm -r /var/lib/apt/lists/*
+
+COPY consumer.sh /usr/local/bin/consumer.sh
 CMD ["/usr/local/bin/consumer.sh"]
