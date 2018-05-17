@@ -11,8 +11,7 @@ PARTITION=${PARTITION:-"0"}
 SECURITY_PROTOCOL=${SECURITY_PROTOCOL:=""}
 MESSAGE_COUNT=${MESSAGE_COUNT:=""}
 MESSAGE_SIZE=${MESSAGE_SIZE:=""}
-
-
+MESSAGE_RATE=${MESSAGE_RATE:=$MESSAGE_COUNT}
 
 _terminate() {
 	echo "Caught SIGTERM signal"
@@ -28,12 +27,12 @@ _terminate() {
 trap _terminate SIGTERM
 
 # Start up a consumer so that rdkafka_performance can measure latency as well 
-rdkafka -C \
+rdkafka_performance -C \
     -l \
     -t $t \
     -p $PARTITION \
     -b $BROKER \
-    -o $FROM $DEBUG \
+    -o $FROM \
     -X "group.id=$GROUP" \
     -X "sasl.mechanisms=$MECHANISM" \
     -X "security.protocol=$SECURITY_PROTOCOL" \
@@ -53,6 +52,8 @@ rdkafka_performance -P \
     -c $MESSAGE_COUNT \
     -s $MESSAGE_SIZE \
     -l \
+    -o $FROM \
+    -r $MESSAGE_RATE \
     -b $BROKER \
     -X "group.id=$GROUP" \
     -X "sasl.mechanisms=$MECHANISM" \

@@ -16,6 +16,7 @@ spec:
         - name: rdkafka-performance
           image: apricer/rdkafka:0.11.4
           command: ["/usr/local/bin/performance-tester.sh"]
+          restartPolicy: Never
           env:
           - name: BROKER
             value: "<at least one of your broker endpoints>"
@@ -37,6 +38,8 @@ spec:
             value: "<number of messages you want to produce>"
           - name: MESSAGE_SIZE
             value: "<size of messages in bytes>"
+          - name : MESSAGE_RATE
+            value: "<messages per second to queue>"
           resources:
             limits:
               cpu: 100m
