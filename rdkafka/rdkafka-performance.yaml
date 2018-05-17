@@ -1,0 +1,47 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: rdkafka-consumer
+  namespace: <your namespace to deploy into>
+  labels:
+    run: rdkafka-consumer 
+spec:
+  replicas: 1 
+  template:
+    metadata:
+      labels:
+        app: rdkafka-consumer 
+    spec:
+      containers:
+        - name: rdkafka-consumer 
+          image: apricer/rdkafka:0.11.5
+          env:
+          - name: BROKER
+            value: "<at least one of your broker endpoints>"
+          - name: TOPIC
+            value: "test"
+          - name: GROUP
+            value: "rdkafkatestconsumer"
+          - name: MECHANISM
+            value: "PLAIN"
+          - name: SECURITY_PROTOCOL
+            value: "sasl_ssl"
+          - name: SASL_USER
+            value: "<your user>"
+          - name: SASL_PASS
+            value: "<your password>"
+          - name: FROM
+            value: "end"
+          - name: MESSAGE_COUNT
+            value: "<number of messages you want to produce>"
+          - name: MESSAGE_SIZE
+            value: "<size of messages in bytes>"
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          imagePullPolicy: Always
+
