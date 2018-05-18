@@ -1,22 +1,19 @@
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
   name: rdkafka-performance
-  namespace: <your namespace to deploy into>
+  namespace: platformeventbus
   labels:
     run: rdkafka-performance
 spec:
-  replicas: 1 
   template:
     metadata:
-      labels:
-        app: rdkafka-performance
+      name: rdkafka-performance
     spec:
       containers:
         - name: rdkafka-performance
           image: apricer/rdkafka:0.11.4
           command: ["/usr/local/bin/performance-tester.sh"]
-          restartPolicy: Never
           env:
           - name: BROKER
             value: "<at least one of your broker endpoints>"
@@ -48,4 +45,5 @@ spec:
               cpu: 100m
               memory: 128Mi
           imagePullPolicy: Always
+      restartPolicy: Never
 
