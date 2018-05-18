@@ -29,7 +29,7 @@ trap _terminate SIGTERM
 # Start up a consumer so that rdkafka_performance can measure latency as well 
 rdkafka_performance -C \
     -l \
-    -t $t \
+    -t $TOPIC \
     -p $PARTITION \
     -b $BROKER \
     -o $FROM \
@@ -48,7 +48,7 @@ rdkafka_performance -C \
 # Start performance client with specified settings
 # "receive.message.max.bytes=200000000"
 rdkafka_performance -P \
-    -t $t \
+    -t $TOPIC \
     -c $MESSAGE_COUNT \
     -s $MESSAGE_SIZE \
     -l \
