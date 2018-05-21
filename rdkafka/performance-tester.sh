@@ -14,17 +14,20 @@ MESSAGE_SIZE=${MESSAGE_SIZE:=""}
 MESSAGE_RATE=${MESSAGE_RATE:=$MESSAGE_COUNT}
 
 _terminate() {
-	echo "Caught SIGTERM signal"
+    echo "=========================="
+	echo "Finishing performance test"
+    echo "=========================="
 	CHILDREN=`ps auwx | grep "rdkafka -C -t" | grep -v "grep rdkafka" | awk '{ printf "%d ", $2 }'`
 	for pid in $CHILDREN; do
-		echo "Killing rdkafka $pid"
-		kill -TERM "$pid"
+        echo "Waiting for consumer to finish consuming"
 		wait "$pid"
 	done
+    echo "Consumer Output:"
+    cat consumer_output.log
 	exit 0
 }
 
-trap _terminate SIGTERM
+trap _terminate 0
 
 # Start up a consumer so that rdkafka_performance can measure latency as well 
 rdkafka_performance -C \
@@ -33,6 +36,7 @@ rdkafka_performance -C \
     -p $PARTITION \
     -b $BROKER \
     -o $FROM \
+    -c $MESSAGE_COUNT \
     -X "group.id=$GROUP" \
     -X "sasl.mechanisms=$MECHANISM" \
     -X "security.protocol=$SECURITY_PROTOCOL" \
@@ -42,7 +46,7 @@ rdkafka_performance -C \
     -X "socket.keepalive.enable=true" \
     -X "log.connection.close=false" \
     -X "reconnect.backoff.jitter.ms=10000" \
-    &
+    &> consumer_output.log &
 
 
 # Start performance client with specified settings
