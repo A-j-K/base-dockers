@@ -12,16 +12,17 @@ SECURITY_PROTOCOL=${SECURITY_PROTOCOL:=""}
 MESSAGE_COUNT=${MESSAGE_COUNT:=""}
 MESSAGE_SIZE=${MESSAGE_SIZE:=""}
 MESSAGE_RATE=${MESSAGE_RATE:=$MESSAGE_COUNT}
+CONSUMER_WAIT=${CONSUMER_WAIT:="60"}
 
 _terminate() {
     echo "=========================="
-	echo "Finishing performance test"
+    echo "Finishing performance test"
     echo "=========================="
-	CHILDREN=`ps auwx | grep "rdkafka -C -t" | grep -v "grep rdkafka" | awk '{ printf "%d ", $2 }'`
-	for pid in $CHILDREN; do
-        echo "Waiting for consumer to finish consuming"
-		wait "$pid"
-	done
+    # TODO: Consumer may not finish consuming (meet message count number), killing after period for now
+    echo "Waiting for consumer to finish consuming"
+    sleep ${CONSUMER_WAIT}
+    kill -TERM $CONSUMER_PID
+    wait $CONSUMER_PID
     echo "Consumer Output:"
     cat consumer_output.log
 	exit 0
@@ -48,6 +49,7 @@ rdkafka_performance -C \
     -X "reconnect.backoff.jitter.ms=10000" \
     &> consumer_output.log &
 
+CONSUMER_PID=$!
 
 # Start performance client with specified settings
 # "receive.message.max.bytes=200000000"
