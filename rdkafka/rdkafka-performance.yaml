@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rdkafka-performance
+  namespace: <your namespace to deploy into>
+  labels:
+    run: rdkafka-performance
+spec:
+  template:
+    metadata:
+      name: rdkafka-performance
+    spec:
+      containers:
+        - name: rdkafka-performance
+          image: apricer/rdkafka:0.11.4
+          command: ["/usr/local/bin/performance-tester.sh"]
+          env:
+          - name: BROKER
+            value: "<at least one of your broker endpoints>"
+          - name: TOPIC
+            value: "<topic name>"
+          - name: GROUP
+            value: "rdkafkatestconsumer"
+          - name: MECHANISM
+            value: "PLAIN"
+          - name: SECURITY_PROTOCOL
+            value: "sasl_ssl"
+          - name: SASL_USER
+            value: "<your user>"
+          - name: SASL_PASS
+            value: "<your password>"
+          - name: FROM
+            value: "end"
+          - name: MESSAGE_COUNT
+            value: "<number of messages you want to produce>"
+          - name: MESSAGE_SIZE
+            value: "<size of messages in bytes>"
+          - name : MESSAGE_RATE
+            value: "<messages per second to queue>"
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          imagePullPolicy: Always
+      restartPolicy: Never
+
