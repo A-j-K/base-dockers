@@ -1,6 +1,6 @@
 FROM confluentinc/cp-kafka:4.1.1-2
-ARG MAKE_USER
-ARG USER_UID
+ARG MAKE_USER=certuser
+ARG USER_UID=1000
 ENV HISTFILE=
 ENV HELM_VERSION="2.9.0"
 ENV KUBECTL_VERSION="1.9.0"
@@ -40,5 +40,6 @@ RUN 	groupadd -r $MAKE_USER \
 	&& rm -r /var/lib/apt/lists/* 
 WORKDIR /home/$MAKE_USER
 USER $MAKE_USER
-CMD ["/bin/bash"]
+COPY mkcert.sh /usr/bin/mkcert.sh
+CMD ["/usr/bin/mkcert.sh"]
 
