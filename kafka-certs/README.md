@@ -4,9 +4,14 @@
 
 The Root CA certificates mounted thus:-
 ```
-/etc/ca-root-key.pem
-/etc/ca-root-crt.pem
+/var/certs/ca-root-key.pem
+/var/certs/ca-root-crt.pem
 ```
+
+We can override the Root CA certificate path and file names with Env vars (__optional__):
+ * ``` $CA_PATH ``` Path for the Root CA certificate files, default: ```/var/certs```
+ * ``` $KEY_FILE ``` CA root key file name, default: ```ca-root-key.pem```
+ * ``` $CRT_FILE ``` CA root crt file name, default: ```ca-root-crt.pem```
 
 The following Env Vars for __inputs__ are __required__
 
