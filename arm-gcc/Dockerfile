@@ -22,9 +22,10 @@ ENV DEPS \
 	cmake 
 
 ENV BUILD_TOOLS_ENV \
+	openjdk-8-jdk \
+	openjdk-8-jre \
 	gcc-arm-embedded \
 	openocd \
-	eclipse \
 	eclipse-cdt \
 	eclipse-cdt-autotools \
 	eclipse-cdt-jni \
@@ -33,8 +34,9 @@ ENV BUILD_TOOLS_ENV \
 	eclipse-cdt-pkg-config \
 	eclipse-cdt-profiling-framework \
 	eclipse-cdt-profiling-framework-remote \
-	eclipse-cdt-valgrind \
-	eclipse-mylyn-context-cdt 
+	eclipse-cdt-valgrind 
+
+ENV OPENOCD_SCRIPTS=/usr/share/openocd/scripts
 
 RUN apt-get update \
 	&& apt-get install -y $DEPS --no-install-recommends \
