@@ -10,6 +10,7 @@ It contains:-
   * Hashicorp Terraform
   * CFSSL
   * kubectl
+  * eksctl
   * Other useful tools, see the Dockerfile for details
 
 Note, no credentials are installed, your child nodes should inject credentials as required.

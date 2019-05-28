@@ -3,12 +3,12 @@ MAINTAINER Andy Kirkham
 
 # Command And Control node base definition
 
-ENV TF_VERSION="0.11.3"
-ENV PK_VERSION="1.2.1"
-ENV MV_VERSION="3.5.3"
-ENV ANT_VERSION="1.10.2"
-ENV HELM_VERSION="2.8.2"
-ENV KUBECTL_VERSION="1.9.0"
+ENV TF_VERSION="0.12.0"
+ENV PK_VERSION="1.4.1"
+ENV MV_VERSION="3.6.1"
+ENV ANT_VERSION="1.10.5"
+ENV HELM_VERSION="2.14.0"
+ENV KUBECTL_VERSION="1.10.0"
 
 # Command And Control node base definition
 
@@ -89,7 +89,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
         && dpkg -i libjansson4-dbgsym_2.9-1_amd64.ddeb \
         && rm -f libjansson4-dbgsym_2.9-1_amd64.ddeb \
 # Because "apt-get install awscli" gives us a version that's too old.
-	&& echo "Updating awscli" \
+	&& echo "==> Updating awscli" \
 	&& apt-get remove -y awscli \
 	&& curl -sSL "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip" \
 	&& unzip awscli-bundle.zip \
@@ -102,18 +102,22 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& chmod +x cfssl_linux-amd64 cfssljson_linux-amd64 \
 	&& mv cfssl_linux-amd64 /usr/local/bin/cfssl \
 	&& mv cfssljson_linux-amd64 /usr/local/bin/cfssljson \
-	&& echo "Loading kubectl ${KUBECTL_VERSION}" \
+	&& echo "==> Loading kubectl ${KUBECTL_VERSION}" \
 	&& curl -o kubectl https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl \
 	&& chmod +x kubectl \
 	&& mv kubectl /usr/local/bin/ \
-	&& echo "Loading helm ${HELM_VERSION}" \
+	&& echo "==> Loading helm ${HELM_VERSION}" \
 	&& curl -o helm-v${HELM_VERSION}-linux-amd64.tar.gz https://kubernetes-helm.storage.googleapis.com/helm-v${HELM_VERSION}-linux-amd64.tar.gz \
 	&& tar -zxf helm-v${HELM_VERSION}-linux-amd64.tar.gz \
 	&& mv linux-amd64/helm /usr/local/bin/helm \
 	&& rm -rf linux-amd64 \
 	&& rm -f helm-v${HELM_VERSION}-linux-amd64.tar.gz \
 	&& pip install --upgrade pip \
-	&& pip install eb \
+# Install eksctl
+	&& echo "==> Installing eksctl" \
+	&& curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp \
+	&& mv /tmp/eksctl /usr/local/bin \
+	&& chmod 755 /usr/local/bin/eksctl \
 	&& apt-get clean \
 	&& rm -r /var/lib/apt/lists/* \
 	&& mkdir -p /workspace
