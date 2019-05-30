@@ -4,13 +4,18 @@
 #
 # 1. Initial image
 # 2. Add Google Protobuf pecl module
+# 3.
+# 4. Updated PHP to 7.2.6
+#    Update Zookeeper, 3.4.11 vanished!
 
-TAG_VER="3"
+set -e
+
+TAG_VER="4"
 
 if [[ -z $1 || -z $2 || -z $3 ]]; then
 	PHP_VER_MAJOR="7"
 	PHP_VER_MINOR="2"
-	PHP_VER_PATCH="4"
+	PHP_VER_PATCH="6"
 else
 	PHP_VER_MAJOR=$1
 	PHP_VER_MINOR=$2

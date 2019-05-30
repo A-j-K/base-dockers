@@ -14,10 +14,11 @@ _terminate() {
 	echo "Caught SIGTERM signal"
 	CHILDREN=`ps auwx | grep "rdkafka -C -t" | grep -v "grep rdkafka" | awk '{ printf "%d ", $2 }'`
 	for pid in $CHILDREN; do
-		echo "Killing rdkafka $pid"
+		echo "Killing rdkafka ${pid}... "
 		kill -TERM "$pid"
 		wait "$pid"
 	done
+	echo "Shutting down $UPGRADING"
 	exit 0
 }
 
@@ -48,6 +49,7 @@ for t in $TOPIC; do
 		-X "socket.timeout.ms=30000" \
 		-X "socket.keepalive.enable=true" \
 		-X "log.connection.close=false" \
+		-X "log_level=2" \
 		-X "reconnect.backoff.jitter.ms=10000" \
 		&
 done
@@ -55,6 +57,6 @@ done
 touch /var/tmp/hold_open
 while [ -e /var/tmp/hold_open ]; do 
 	echo "Test consumer $UPGRADING running"
-	sleep 30; 
+	sleep 60; 
 done 
 

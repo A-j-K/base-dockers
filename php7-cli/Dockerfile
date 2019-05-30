@@ -5,7 +5,7 @@ ARG PHP_VER
 ARG TAG_VER
 ENV	PHP_RDKAFKA_VER="3.0.5" \
 	PHP_ZOOKEEPER_VER="0.4.0" \
-	LIB_ZOOKEEPER_VER="3.4.11" \
+	LIB_ZOOKEEPER_VER="3.4.12" \
 	PHP_MEMCACHED_VER="3.0.4" \
 	LIB_JANSSON_VER="2.10" \
 	PROTOBUF_VER="3.5.1" \
@@ -61,6 +61,8 @@ ENV DEPS_TOOLS \
 	file \
 	git
 
+ENV CFLAGS="${CFLAGS} -Wno-deprecated-declarations"
+
 RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& echo 'Pin: release *' >> /etc/apt/preferences.d/no-debian-php \
 	&& echo 'Pin-Priority: -1' >> /etc/apt/preferences.d/no-debian-php \
@@ -110,6 +112,7 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& rm -rf /tmp/build \
 	&& echo -n "${PHP_VER}-${TAG_VER}" > $PHP_INI_DIR/ajk_tag_ver.txt \
 # Ninja
+	&& echo "Installing Ninja" \
 	&& mkdir -p /tmp/build \
 	&& cd /tmp/build \
 	&& curl -sSL https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-linux.zip > ninja-linux.zip \
@@ -118,6 +121,7 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& cd / \
 	&& rm -rf /tmp/build \
 # CMake
+	&& echo "Installing Cmake" \
 	&& mkdir -p /tmp/build \
 	&& cd /tmp/build \
 	&& curl -sSL https://cmake.org/files/v3.10/cmake-3.10.2-Linux-x86_64.tar.gz > cmake.tgz \
@@ -130,6 +134,7 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& cd / \
 	&& rm -rf /tmp/build \
 # Libevent
+	&& echo "Installing Libevent" \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y libevent-dev \
 	&& mkdir -p /tmp/build && cd /tmp/build \
 	&& cd /tmp/build \
@@ -140,6 +145,7 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& echo "extension=libevent.so" > $PHP_INI_DIR/conf.d/98-libevent.ini \
 	&& cd / && rm -rf /tmp/build \
 # ZMQ
+	&& echo "Installing ZMQ" \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y libzmq3-dev \
 	&& mkdir -p /tmp/build && cd /tmp/build \
 	&& curl -sSL https://github.com/mkoppanen/php-zmq/archive/master.zip > zmq.zip \
@@ -149,6 +155,7 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& echo "extension=zmq.so" > $PHP_INI_DIR/conf.d/99-zeromq.ini \
 	&& cd / && rm -rf /tmp/build \
 # Nanomsg
+	&& echo "Installing Nanomsg" \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y libnanomsg-dev \
 	&& mkdir -p /tmp/build && cd /tmp/build \
 	&& curl -sSL https://github.com/mkoppanen/php-nano/archive/master.zip > nanomsg.zip \
@@ -158,6 +165,7 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& echo "extension=nano.so" > $PHP_INI_DIR/conf.d/99-nanomsg.ini \
 	&& cd / && rm -rf /tmp/build \
 # AMQP
+	&& echo "Installing AMQP" \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y librabbitmq-dev \
 	&& mkdir -p /tmp/build && cd /tmp/build \
 	&& curl -sSL https://github.com/pdezwart/php-amqp/archive/master.zip > amqp.zip \
@@ -167,6 +175,7 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& echo "extension=amqp.so" > $PHP_INI_DIR/conf.d/99-amqp.ini \
 	&& cd / && rm -rf /tmp/build \
 # Yaml
+	&& echo "Installing YAML" \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y libyaml-dev \
 	&& mkdir -p /tmp/build && cd /tmp/build \
 	&& curl -sSL https://github.com/php/pecl-file_formats-yaml/archive/2.0.2.zip > yaml.zip \
@@ -176,6 +185,7 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& echo "extension=yaml.so" > $PHP_INI_DIR/conf.d/99-yaml.ini \
 	&& cd / && rm -rf /tmp/build \
 # Memcache
+	&& echo "Installing Memcache" \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y libmemcached-dev \
 	&& mkdir -p /tmp/build && cd /tmp/build \
 	&& curl -sSL http://pecl.php.net/get/memcached-${PHP_MEMCACHED_VER}.tgz > memcached.tgz \
@@ -185,6 +195,7 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& echo "extension=memcached.so" > $PHP_INI_DIR/conf.d/99-memcached.ini \
 	&& cd / && rm -rf /tmp/build \
 # Zookeeper
+	&& echo "Installing Zookeeper" \
 	&& mkdir -p /tmp/build && cd /tmp/build \
 	&& curl -sSL http://mirrorservice.org/sites/ftp.apache.org/zookeeper/zookeeper-${LIB_ZOOKEEPER_VER}/zookeeper-${LIB_ZOOKEEPER_VER}.tar.gz > zookeeper.tgz \
 	&& tar -zxf zookeeper.tgz && rm -f zookeeper.tgz \
@@ -199,6 +210,7 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& echo "extension=zookeeper.so" > $PHP_INI_DIR/conf.d/20-zookeeper.ini \
 	&& cd / && rm -rf /tmp/build \
 # RdKafka
+	&& echo "Installing RdKafka" \
 	&& mkdir -p /tmp/build && cd /tmp/build \
 	&& curl -sSL https://github.com/edenhill/librdkafka/archive/v0.11.3.zip > librdkafka.zip \
 	&& unzip librdkafka.zip && rm -f librdkafka.zip \
@@ -213,6 +225,7 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& echo "extension=rdkafka.so" > $PHP_INI_DIR/conf.d/30-rdkafka.ini \
 	&& cd / && rm -rf /tmp/build && rm -rf /tmp/dist \
 # Jansson
+	&& echo "Installing Jannson" \
 	&& mkdir -p /tmp/build && cd /tmp/build \
 	&& curl -sSL https://github.com/akheron/jansson/archive/v$LIB_JANSSON_VER.zip > jansson-$LIB_JANSSON_VER.zip \
 	&& unzip jansson-$LIB_JANSSON_VER.zip && rm -f jansson-$LIB_JANSSON_VER.zip \
@@ -228,6 +241,7 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& echo "extension=jansson.so" > $PHP_INI_DIR/conf.d/99-jansson.ini \
 	&& cd / && rm -rf /tmp/build \
 # Google Protobuf
+	&& echo "Installing Gogle Protobuf" \
 	&& mkdir -p /tmp/build \
 	&& cd /tmp/build \
 	&& curl -OL https://github.com/google/protobuf/releases/download/v${PROTOBUF_VER}/protobuf-php-${PROTOBUF_VER}.tar.gz \

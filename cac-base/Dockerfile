@@ -118,6 +118,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp \
 	&& mv /tmp/eksctl /usr/local/bin \
 	&& chmod 755 /usr/local/bin/eksctl \
+# Install aws-iam-authenticator
+	&& curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.12.7/2019-03-27/bin/linux/amd64/aws-iam-authenticator \
+	&& chmod +x ./aws-iam-authenticator \
+	&& mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator \
 	&& apt-get clean \
 	&& rm -r /var/lib/apt/lists/* \
 	&& mkdir -p /workspace

@@ -11,7 +11,7 @@ TAG_VER="1"
 if [[ -z $1 || -z $2 || -z $3 ]]; then
 	PHP_VER_MAJOR="5"
 	PHP_VER_MINOR="6"
-	PHP_VER_PATCH="34"
+	PHP_VER_PATCH="40"
 else
 	PHP_VER_MAJOR=$1
 	PHP_VER_MINOR=$2

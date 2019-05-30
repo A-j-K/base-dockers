@@ -1,4 +1,4 @@
-FROM php:5.6-cli
+FROM ubuntu:14.04
 MAINTAINER Andy Kirkham <andy@spiders-lair.com>
 
 ARG PHP_VER
@@ -31,13 +31,12 @@ ENV DEPS \
 	libxslt1-dev \
 	libxml2 \
 	libxml2-dev \
-	libcurl3 \
 	libedit2 \
 	libsqlite3-0 \
 	libmysqlclient-dev \
 	libmysqlclient18 \
 	libbison-dev \
-	libcurl4-gnutls-dev \
+	libcurl4-openssl-dev \
 	libedit-dev \
 	libev-dev \
 	libgd-dev \
@@ -47,7 +46,7 @@ ENV DEPS \
 	zlib1g-dev 
 
 ENV DEPS_TOOLS \
-	mysql-client \
+	mysql-client-5.6 \
 	apt-utils \
 	pkg-config \
 	mlocate \
@@ -72,10 +71,7 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& cd /tmp/build/php-src-php-$PHP_VER \
 	&& mkdir -p $PHP_INI_DIR/conf.d \
 	&& ./buildconf --force \
-	&& gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
-	   debMultiarch="$(dpkg-architecture --query DEB_BUILD_MULTIARCH)"; \ 
-	  ./configure \
-		--build="$gnuArch" \
+	&& ./configure \
 		--with-config-file-path="$PHP_INI_DIR" \
 		--with-config-file-scan-dir="$PHP_INI_DIR/conf.d" \
 		--disable-cgi \
@@ -96,8 +92,6 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 		--with-gd \
 		--with-jpeg-dir \
 		--with-png-dir \		
-		$(test "$gnuArch" = 's390x-linux-gnu' && echo '--without-pcre-jit') \
-		--with-libdir="lib/$debMultiarch" \
 	&& echo "Compiling PHP silently, please wait..." \
 	&& make -s -j"$(nproc)" \
 	&& make install \

@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:16.04 as AWS_CPP_SDK
 MAINTAINER Andy Kirkham <andy@spiders-lair.com>
 
 ARG AWS_SDK_CPP_VER_MAJOR
@@ -96,5 +96,10 @@ RUN apt-get update \
 	&& cd / \
 	&& rm -rf /tmp/build \
 	&& rm -rf /var/lib/apt/lists/* 
+
+#FROM alpine:3.7
+#COPY --from=AWS_CPP_SDK /usr/local/lib /usr/local/lib
+#COPY --from=AWS_CPP_SDK /usr/local/include/aws /usr/local/include/aws
+#COPY --from=AWS_CPP_SDK /usr/local/lib/cmake /usr/local/lib/cmake
 
 
