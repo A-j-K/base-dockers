@@ -4,11 +4,16 @@ MAINTAINER Andy Kirkham
 # Command And Control node base definition
 
 ENV TF_VERSION="0.12.3"
-ENV PK_VERSION="1.4.1"
+ENV PK_VERSION="1.4.2"
 ENV MV_VERSION="3.6.1"
 ENV ANT_VERSION="1.10.5"
-ENV HELM_VERSION="2.14.0"
-ENV KUBECTL_VERSION="1.10.0"
+ENV HELM_VERSION="2.14.1"
+
+
+ENV KUBECTL_VERSION="1.15.0"
+
+# https://amazon-eks.s3-us-west-2.amazonaws.com/
+ENV AWS_IAM_AUTHENTICATOR="1.13.7/2019-06-11"
 
 # Command And Control node base definition
 
@@ -119,7 +124,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& mv /tmp/eksctl /usr/local/bin \
 	&& chmod 755 /usr/local/bin/eksctl \
 # Install aws-iam-authenticator
-	&& curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.12.7/2019-03-27/bin/linux/amd64/aws-iam-authenticator \
+	&& curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/${AWS_IAM_AUTHENTICATOR}/bin/linux/amd64/aws-iam-authenticator \
 	&& chmod +x ./aws-iam-authenticator \
 	&& mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator \
 	&& apt-get clean \
