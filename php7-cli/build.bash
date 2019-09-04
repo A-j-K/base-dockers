@@ -7,6 +7,12 @@
 # 3.
 # 4. Updated PHP to 7.2.6
 #    Update Zookeeper, 3.4.11 vanished!
+# 5. Updated PHP to 7.3.9
+#    Updated to buster-slim
+#    Updated to libcurl4
+#    Used default-mysql-client
+#    7.3.x threw up compile issues that had to be removed from the build.
+#
 
 set -e
 
@@ -14,8 +20,8 @@ TAG_VER="4"
 
 if [[ -z $1 || -z $2 || -z $3 ]]; then
 	PHP_VER_MAJOR="7"
-	PHP_VER_MINOR="2"
-	PHP_VER_PATCH="6"
+	PHP_VER_MINOR="3"
+	PHP_VER_PATCH="9"
 else
 	PHP_VER_MAJOR=$1
 	PHP_VER_MINOR=$2

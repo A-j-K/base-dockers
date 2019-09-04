@@ -22,6 +22,11 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y $PKGS --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/* \
 	&& apt-get clean \
+	&& php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+	&& php composer-setup.php \
+	&& php -r "unlink('composer-setup.php');" \
+	&& chmod 755 composer.phar \
+	&& mv composer.phar /usr/local/bin/composer \
 	&& mkdir -p /workspace
 WORKDIR /root
 

@@ -1,14 +1,14 @@
-FROM debian:stretch-slim
+FROM debian:buster-slim
 MAINTAINER Andy Kirkham <andy@spiders-lair.com>
 
 ARG PHP_VER
 ARG TAG_VER
-ENV	PHP_RDKAFKA_VER="3.0.5" \
-	PHP_ZOOKEEPER_VER="0.4.0" \
-	LIB_ZOOKEEPER_VER="3.4.12" \
-	PHP_MEMCACHED_VER="3.0.4" \
-	LIB_JANSSON_VER="2.10" \
-	PROTOBUF_VER="3.5.1" \
+ENV	PHP_RDKAFKA_VER="3.1.2" \
+	PHP_ZOOKEEPER_VER="0.6.4" \
+	LIB_ZOOKEEPER_VER="3.4.14" \
+	PHP_MEMCACHED_VER="3.1.3" \
+	LIB_JANSSON_VER="2.12" \
+	PROTOBUF_VER="3.9.1" \
 	PHP_INI_DIR="/usr/local/etc/php" 
 
 ENV DEPS_TEMP \
@@ -32,7 +32,7 @@ ENV DEPS \
 	libxslt1-dev \
 	libxml2 \
 	libxml2-dev \
-	libcurl3 \
+	libcurl4 \
 	libedit2 \
 	libsqlite3-0 \
 	default-libmysqlclient-dev \
@@ -49,7 +49,7 @@ ENV DEPS \
 	libmbedtls-dev 
 
 ENV DEPS_TOOLS \
-	mysql-client \
+	default-mysql-client \
 	apt-utils \
 	pkg-config \
 	mlocate \
@@ -155,15 +155,16 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& echo "extension=zmq.so" > $PHP_INI_DIR/conf.d/99-zeromq.ini \
 	&& cd / && rm -rf /tmp/build \
 # Nanomsg
-	&& echo "Installing Nanomsg" \
-	&& DEBIAN_FRONTEND=noninteractive apt-get install -y libnanomsg-dev \
-	&& mkdir -p /tmp/build && cd /tmp/build \
-	&& curl -sSL https://github.com/mkoppanen/php-nano/archive/master.zip > nanomsg.zip \
-	&& unzip nanomsg.zip && rm -f nanmsg.zip \
-	&& cd php-nano-master \
-	&& phpize && ./configure && make && make install \
-	&& echo "extension=nano.so" > $PHP_INI_DIR/conf.d/99-nanomsg.ini \
-	&& cd / && rm -rf /tmp/build \
+# Drop for now, doesn't compile on buster-slim
+#	&& echo "Installing Nanomsg" \
+#	&& DEBIAN_FRONTEND=noninteractive apt-get install -y libnanomsg-dev libnanomsg5 \
+#	&& mkdir -p /tmp/build && cd /tmp/build \
+#	&& curl -sSL https://github.com/mkoppanen/php-nano/archive/master.zip > nanomsg.zip \
+#	&& unzip nanomsg.zip && rm -f nanmsg.zip \
+#	&& cd php-nano-master \
+#	&& phpize && ./configure && make && make install \
+#	&& echo "extension=nano.so" > $PHP_INI_DIR/conf.d/99-nanomsg.ini \
+#	&& cd / && rm -rf /tmp/build \
 # AMQP
 	&& echo "Installing AMQP" \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y librabbitmq-dev \
@@ -178,9 +179,9 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& echo "Installing YAML" \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y libyaml-dev \
 	&& mkdir -p /tmp/build && cd /tmp/build \
-	&& curl -sSL https://github.com/php/pecl-file_formats-yaml/archive/2.0.2.zip > yaml.zip \
+	&& curl -sSL https://github.com/php/pecl-file_formats-yaml/archive/2.0.4.zip > yaml.zip \
 	&& unzip yaml.zip && rm -f yaml.zip \
-	&& cd pecl-file_formats-yaml-2.0.2 \
+	&& cd pecl-file_formats-yaml-2.0.4 \
 	&& phpize && ./configure && make && make install \
 	&& echo "extension=yaml.so" > $PHP_INI_DIR/conf.d/99-yaml.ini \
 	&& cd / && rm -rf /tmp/build \
@@ -195,28 +196,29 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& echo "extension=memcached.so" > $PHP_INI_DIR/conf.d/99-memcached.ini \
 	&& cd / && rm -rf /tmp/build \
 # Zookeeper
-	&& echo "Installing Zookeeper" \
-	&& mkdir -p /tmp/build && cd /tmp/build \
-	&& curl -sSL http://mirrorservice.org/sites/ftp.apache.org/zookeeper/zookeeper-${LIB_ZOOKEEPER_VER}/zookeeper-${LIB_ZOOKEEPER_VER}.tar.gz > zookeeper.tgz \
-	&& tar -zxf zookeeper.tgz && rm -f zookeeper.tgz \
-	&& cd zookeeper-${LIB_ZOOKEEPER_VER} && cd src/c \
-	&& ./configure --prefix=/usr/ && make && make install \
-	&& cd / && rm -rf /tmp/build \
-	&& mkdir -p /tmp/build && cd /tmp/build \
-	&& curl -sSL http://pecl.php.net/get/zookeeper-${PHP_ZOOKEEPER_VER}.tgz > php-zookeeper.tgz \
-	&& tar -zxf php-zookeeper.tgz && rm -f php-zookeeper.tgz \
-	&& cd zookeeper-${PHP_ZOOKEEPER_VER} \
-	&& phpize && ./configure && make && make install \
-	&& echo "extension=zookeeper.so" > $PHP_INI_DIR/conf.d/20-zookeeper.ini \
-	&& cd / && rm -rf /tmp/build \
+# The zookeeper c client is broken on compile, remove it.
+#	&& echo "Installing Zookeeper" \
+#	&& mkdir -p /tmp/build && cd /tmp/build \
+#	&& curl -sSL http://mirrorservice.org/sites/ftp.apache.org/zookeeper/zookeeper-${LIB_ZOOKEEPER_VER}/zookeeper-${LIB_ZOOKEEPER_VER}.tar.gz > zookeeper.tgz \
+#	&& tar -zxf zookeeper.tgz && rm -f zookeeper.tgz \
+#	&& cd zookeeper-${LIB_ZOOKEEPER_VER} && cd zookeeper-client/zookeeper-client-c \
+#	&& ./configure --prefix=/usr/ && make && make install \
+#	&& cd / && rm -rf /tmp/build \
+#	&& mkdir -p /tmp/build && cd /tmp/build \
+#	&& curl -sSL http://pecl.php.net/get/zookeeper-${PHP_ZOOKEEPER_VER}.tgz > php-zookeeper.tgz \
+#	&& tar -zxf php-zookeeper.tgz && rm -f php-zookeeper.tgz \
+#	&& cd zookeeper-${PHP_ZOOKEEPER_VER} \
+#	&& phpize && ./configure && make && make install \
+#	&& echo "extension=zookeeper.so" > $PHP_INI_DIR/conf.d/20-zookeeper.ini \
+#	&& cd / && rm -rf /tmp/build \
 # RdKafka
 	&& echo "Installing RdKafka" \
 	&& mkdir -p /tmp/build && cd /tmp/build \
-	&& curl -sSL https://github.com/edenhill/librdkafka/archive/v0.11.3.zip > librdkafka.zip \
+	&& curl -sSL https://github.com/edenhill/librdkafka/archive/v1.1.0.zip > librdkafka.zip \
 	&& unzip librdkafka.zip && rm -f librdkafka.zip \
-	&& cd librdkafka-0.11.3 \
+	&& cd librdkafka-1.1.0 \
 	&& ./configure && make && make install \
-	&& cd .. && rm -rf librdkafka-0.11.3 \
+	&& cd .. && rm -rf librdkafka-1.1.0 \
 	&& mkdir -p /tmp/build && cd /tmp/build \
 	&& curl -sSL http://pecl.php.net/get/rdkafka-${PHP_RDKAFKA_VER}.tgz > rdkafka.tgz \
 	&& tar -zxf rdkafka.tgz && rm -f rdkafka.tgz \
