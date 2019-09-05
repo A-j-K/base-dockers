@@ -1,19 +1,7 @@
-FROM ubuntu:16.04
+FROM ubuntu:16.04 
 MAINTAINER Andy Kirkham
 
 # Command And Control node base definition
-
-ENV TF_VERSION="0.12.3"
-ENV PK_VERSION="1.4.2"
-ENV MV_VERSION="3.6.1"
-ENV ANT_VERSION="1.10.5"
-ENV HELM_VERSION="2.14.1"
-
-
-ENV KUBECTL_VERSION="1.15.0"
-
-# https://amazon-eks.s3-us-west-2.amazonaws.com/
-ENV AWS_IAM_AUTHENTICATOR="1.13.7/2019-06-11"
 
 # Command And Control node base definition
 
@@ -47,8 +35,17 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& DEBIAN_FRONTEND=noninteractive apt-add-repository -y ppa:ansible/ansible \
 	&& DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y $PKGS --no-install-recommends \
-	&& rm -rf /var/lib/apt/lists/* \
-	&& curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4_2.9-1_amd64.deb > libjansson4_2.9-1_amd64.deb \
+	&& rm -rf /var/lib/apt/lists/* 
+
+ENV TF_VERSION="0.12.8"
+ENV PK_VERSION="1.4.3"
+ENV MV_VERSION="3.6.1"
+ENV ANT_VERSION="1.10.7"
+ENV HELM_VERSION="2.14.1"
+ENV KUBECTL_VERSION="1.15.0"
+ENV AWS_IAM_AUTHENTICATOR="1.13.7/2019-06-11"
+
+RUN 	curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4_2.9-1_amd64.deb > libjansson4_2.9-1_amd64.deb \
         && DEBIAN_FRONTEND=noninteractive dpkg -i libjansson4_2.9-1_amd64.deb \
         && rm -f libjansson4_2.9-1_amd64.deb \
 	&& curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson-dev_2.9-1_amd64.deb > libjansson-dev_2.9-1_amd64.deb \
@@ -64,35 +61,40 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& mv terraform /usr/local/bin/terraform \
 	&& chmod 755 /usr/local/bin/terraform \
 	&& rm -f terraform.zip \
-	&& echo "Loading Packer ${PK_VERSION}" \
+	&& echo "==> Loading Packer ${PK_VERSION}" \
 	&& curl -sSL https://releases.hashicorp.com/packer/${PK_VERSION}/packer_${PK_VERSION}_linux_amd64.zip > packer.zip \
 	&& unzip packer.zip \
 	&& mv packer /usr/local/bin/packer \
 	&& chmod 755 /usr/local/bin/packer \
 	&& rm -f packer.zip \
-	&& echo "Loading Maven ${MV_VERSION}" \
+	&& echo "===> done." \
+	&& echo "==> Loading Maven ${MV_VERSION}" \
 	&& curl -sSL http://www-eu.apache.org/dist/maven/maven-3/${MV_VERSION}/binaries/apache-maven-${MV_VERSION}-bin.tar.gz > apache-maven-${MV_VERSION}-bin.tar.gz \
 	&& tar -zxf apache-maven-${MV_VERSION}-bin.tar.gz \
 	&& rm -f apache-maven-${MV_VERSION}-bin.tar.gz \
 	&& mv apache-maven-${MV_VERSION} /usr/local \
 	&& echo "export MVN_HOME=\"/usr/local/apache-maven-${MV_VERSION}\"" >> /etc/bash.bashrc \
-	&& echo "Loading Ant ${ANT_VERSION}" \
+	&& echo "===> done." \
+	&& echo "==> Loading Ant ${ANT_VERSION}" \
 	&& curl -sSL http://www-eu.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz > apache-ant-${ANT_VERSION}-bin.tar.gz \
 	&& tar -zxf apache-ant-${ANT_VERSION}-bin.tar.gz \
 	&& rm -f apache-ant-${ANT_VERSION}-bin.tar.gz \
 	&& mv apache-ant-${ANT_VERSION} /usr/local \
 	&& echo "export ANT_HOME=\"/usr/local/apache-ant-${ANT_VERSION}\"" >> /etc/bash.bashrc \
 	&& echo "export PATH=\"$PATH:/usr/local/apache-maven-${MV_VERSION}/bin:/usr/local/apache-ant-${ANT_VERSION}/bin\"" >> /etc/bash.bashrc \
-	&& echo "Loading Jansson 2.9.1" \
+	&& echo "===> done." \
+	&& echo "==> Loading Jansson 2.9.1" \
 	&& curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4_2.9-1_amd64.deb > libjansson4_2.9-1_amd64.deb \
         && dpkg -i libjansson4_2.9-1_amd64.deb \
         && rm -f libjansson4_2.9-1_amd64.deb \
+	&& echo "===> done." \
 	&& curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson-dev_2.9-1_amd64.deb > libjansson-dev_2.9-1_amd64.deb \
         && dpkg -i libjansson-dev_2.9-1_amd64.deb \
         && rm -f libjansson-dev_2.9-1_amd64.deb \
 	&& curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4-dbgsym_2.9-1_amd64.ddeb > libjansson4-dbgsym_2.9-1_amd64.ddeb \
         && dpkg -i libjansson4-dbgsym_2.9-1_amd64.ddeb \
         && rm -f libjansson4-dbgsym_2.9-1_amd64.ddeb \
+	&& echo "===> done." \
 # Because "apt-get install awscli" gives us a version that's too old.
 	&& echo "==> Updating awscli" \
 	&& apt-get remove -y awscli \
@@ -107,26 +109,34 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& chmod +x cfssl_linux-amd64 cfssljson_linux-amd64 \
 	&& mv cfssl_linux-amd64 /usr/local/bin/cfssl \
 	&& mv cfssljson_linux-amd64 /usr/local/bin/cfssljson \
+	&& echo "===> done." \
 	&& echo "==> Loading kubectl ${KUBECTL_VERSION}" \
 	&& curl -o kubectl https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl \
 	&& chmod +x kubectl \
 	&& mv kubectl /usr/local/bin/ \
+	&& echo "===> done." \
 	&& echo "==> Loading helm ${HELM_VERSION}" \
 	&& curl -o helm-v${HELM_VERSION}-linux-amd64.tar.gz https://kubernetes-helm.storage.googleapis.com/helm-v${HELM_VERSION}-linux-amd64.tar.gz \
 	&& tar -zxf helm-v${HELM_VERSION}-linux-amd64.tar.gz \
 	&& mv linux-amd64/helm /usr/local/bin/helm \
 	&& rm -rf linux-amd64 \
 	&& rm -f helm-v${HELM_VERSION}-linux-amd64.tar.gz \
+	&& echo "===> done." \
+	&& echo "==> Upgrading pip" \
 	&& pip install --upgrade pip \
+	&& echo "===> done." \
 # Install eksctl
 	&& echo "==> Installing eksctl" \
 	&& curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp \
 	&& mv /tmp/eksctl /usr/local/bin \
 	&& chmod 755 /usr/local/bin/eksctl \
+	&& echo "===> done." \
 # Install aws-iam-authenticator
+	&& echo "==> Installing aws-iam-authenticator" \
 	&& curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/${AWS_IAM_AUTHENTICATOR}/bin/linux/amd64/aws-iam-authenticator \
 	&& chmod +x ./aws-iam-authenticator \
 	&& mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator \
+	&& echo "===> done." \
 	&& apt-get clean \
 	&& rm -r /var/lib/apt/lists/* \
 	&& mkdir -p /workspace
