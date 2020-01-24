@@ -3,7 +3,8 @@ MAINTAINER Andy Kirkham
 
 # Command And Control with Docker 
 
-ENV DOCKER_VERSION="17.09.0-ce"
+#ENV DOCKER_VERSION="18.06.3-ce"
+ENV DOCKER_VERSION="19.03.2"
 
 #RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
 
