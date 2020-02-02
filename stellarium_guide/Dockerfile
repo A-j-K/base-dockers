@@ -7,6 +7,7 @@ ENV PKGS \
 	texlive-latex-recommended \
 	texlive-latex-extra\
 	texlive-pictures \
+	texlive-fonts-recommended \
 	biber \
 	make \
 	git \
