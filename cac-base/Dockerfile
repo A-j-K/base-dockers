@@ -1,4 +1,4 @@
-FROM ubuntu:16.04 
+FROM ubuntu:18.04 
 MAINTAINER Andy Kirkham
 
 # Command And Control node base definition
@@ -27,23 +27,26 @@ ENV PKGS \
 	libapr1-dev \
 	libsvn-dev \
 	libsvncpp-dev \
-	libsvncpp3 libsvn1
+	libsvncpp3 libsvn1 \
+	python3-pip
+
+COPY files/aws-cli-fed-requirements.txt /root/aws-cli-fed-requirements.txt
 
 WORKDIR /tmp
 RUN DEBIAN_FRONTEND=noninteractive apt-get update \
-	&& DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential software-properties-common \
+	&& DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential software-properties-common apt-utils \
 	&& DEBIAN_FRONTEND=noninteractive apt-add-repository -y ppa:ansible/ansible \
 	&& DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y $PKGS --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/* 
 
-ENV TF_VERSION="0.12.8"
-ENV PK_VERSION="1.4.3"
+ENV TF_VERSION="0.12.20"
+ENV PK_VERSION="1.5.2"
 ENV MV_VERSION="3.6.1"
 ENV ANT_VERSION="1.10.7"
-ENV HELM_VERSION="2.14.1"
-ENV KUBECTL_VERSION="1.15.0"
-ENV AWS_IAM_AUTHENTICATOR="1.13.7/2019-06-11"
+ENV HELM_VERSION="2.16.3"
+ENV KUBECTL_VERSION="1.17.3"
+ENV AWS_IAM_AUTHENTICATOR="1.14.6/2019-08-22"
 
 RUN 	curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4_2.9-1_amd64.deb > libjansson4_2.9-1_amd64.deb \
         && DEBIAN_FRONTEND=noninteractive dpkg -i libjansson4_2.9-1_amd64.deb \
@@ -67,21 +70,6 @@ RUN 	curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4_
 	&& mv packer /usr/local/bin/packer \
 	&& chmod 755 /usr/local/bin/packer \
 	&& rm -f packer.zip \
-	&& echo "===> done." \
-	&& echo "==> Loading Maven ${MV_VERSION}" \
-	&& curl -sSL http://www-eu.apache.org/dist/maven/maven-3/${MV_VERSION}/binaries/apache-maven-${MV_VERSION}-bin.tar.gz > apache-maven-${MV_VERSION}-bin.tar.gz \
-	&& tar -zxf apache-maven-${MV_VERSION}-bin.tar.gz \
-	&& rm -f apache-maven-${MV_VERSION}-bin.tar.gz \
-	&& mv apache-maven-${MV_VERSION} /usr/local \
-	&& echo "export MVN_HOME=\"/usr/local/apache-maven-${MV_VERSION}\"" >> /etc/bash.bashrc \
-	&& echo "===> done." \
-	&& echo "==> Loading Ant ${ANT_VERSION}" \
-	&& curl -sSL http://www-eu.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz > apache-ant-${ANT_VERSION}-bin.tar.gz \
-	&& tar -zxf apache-ant-${ANT_VERSION}-bin.tar.gz \
-	&& rm -f apache-ant-${ANT_VERSION}-bin.tar.gz \
-	&& mv apache-ant-${ANT_VERSION} /usr/local \
-	&& echo "export ANT_HOME=\"/usr/local/apache-ant-${ANT_VERSION}\"" >> /etc/bash.bashrc \
-	&& echo "export PATH=\"$PATH:/usr/local/apache-maven-${MV_VERSION}/bin:/usr/local/apache-ant-${ANT_VERSION}/bin\"" >> /etc/bash.bashrc \
 	&& echo "===> done." \
 	&& echo "==> Loading Jansson 2.9.1" \
 	&& curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4_2.9-1_amd64.deb > libjansson4_2.9-1_amd64.deb \
@@ -139,6 +127,8 @@ RUN 	curl -sSL https://launchpad.net/ubuntu/+archive/primary/+files/libjansson4_
 	&& echo "===> done." \
 	&& apt-get clean \
 	&& rm -r /var/lib/apt/lists/* \
-	&& mkdir -p /workspace
+	&& mkdir -p /workspace 
+
+#RUN	pip3 install -r /root/aws-cli-fed-requirements.txt
 WORKDIR /root
 
