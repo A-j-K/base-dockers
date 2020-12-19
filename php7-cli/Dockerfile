@@ -24,6 +24,7 @@ ENV DEPS_TEMP \
 	cmake
 
 ENV DEPS \
+	git \
 	curl \
 	libonig-dev \
 	libsqlite3-dev \

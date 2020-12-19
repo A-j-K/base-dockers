@@ -16,7 +16,7 @@
 
 set -e
 
-TAG_VER="4"
+TAG_VER="5"
 
 if [[ -z $1 || -z $2 || -z $3 ]]; then
 	PHP_VER_MAJOR="7"
