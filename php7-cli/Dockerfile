@@ -1,14 +1,15 @@
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 MAINTAINER Andy Kirkham <andy@spiders-lair.com>
 
 ARG PHP_VER
 ARG TAG_VER
-ENV	PHP_RDKAFKA_VER="3.1.2" \
+ENV	PHP_RDKAFKA_VER="4.1.1" \
 	PHP_ZOOKEEPER_VER="0.6.4" \
 	LIB_ZOOKEEPER_VER="3.4.14" \
-	PHP_MEMCACHED_VER="3.1.3" \
-	LIB_JANSSON_VER="2.12" \
-	PROTOBUF_VER="3.9.1" \
+	PHP_MEMCACHED_VER="3.1.5" \
+	LIB_JANSSON_VER="2.13.1" \
+	PROTOBUF_VER="4.0.0-rc2" \
+	PECL_FILE_FORMATS_YAML_VER="2.2.0" \
 	PHP_INI_DIR="/usr/local/etc/php" 
 
 ENV DEPS_TEMP \
@@ -24,6 +25,8 @@ ENV DEPS_TEMP \
 
 ENV DEPS \
 	curl \
+	libonig-dev \
+	libsqlite3-dev \
 	ca-certificates \
 	libargon2-0-dev \
 	libc-dev \
@@ -48,6 +51,9 @@ ENV DEPS \
 	libsodium-dev \
 	libmbedtls-dev 
 
+ENV DEPS_TESTING \
+	sqlite3
+
 ENV DEPS_TOOLS \
 	default-mysql-client \
 	apt-utils \
@@ -69,6 +75,7 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y \
 		$DEPS $DEPS_TEMP $DEPS_TOOLS --no-install-recommends \
+	&& DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& mkdir -p /tmp/build \
 	&& curl -sSL https://github.com/php/php-src/archive/php-$PHP_VER.zip > /tmp/build/php-$PHP_VER.zip \
 	&& cd /tmp/build && unzip -q php-$PHP_VER.zip \
@@ -76,6 +83,7 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& cd /tmp/build/php-src-php-$PHP_VER \
 	&& mkdir -p $PHP_INI_DIR/conf.d \
 	&& ./buildconf --force \
+	&& ./configure --help \
 	&& gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
 	   debMultiarch="$(dpkg-architecture --query DEB_BUILD_MULTIARCH)"; \ 
 	  ./configure \
@@ -179,9 +187,9 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& echo "Installing YAML" \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y libyaml-dev \
 	&& mkdir -p /tmp/build && cd /tmp/build \
-	&& curl -sSL https://github.com/php/pecl-file_formats-yaml/archive/2.0.4.zip > yaml.zip \
+	&& curl -sSL https://github.com/php/pecl-file_formats-yaml/archive/${PECL_FILE_FORMATS_YAML_VER}.zip > yaml.zip \
 	&& unzip yaml.zip && rm -f yaml.zip \
-	&& cd pecl-file_formats-yaml-2.0.4 \
+	&& cd pecl-file_formats-yaml-${PECL_FILE_FORMATS_YAML_VER} \
 	&& phpize && ./configure && make && make install \
 	&& echo "extension=yaml.so" > $PHP_INI_DIR/conf.d/99-yaml.ini \
 	&& cd / && rm -rf /tmp/build \
@@ -214,11 +222,11 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 # RdKafka
 	&& echo "Installing RdKafka" \
 	&& mkdir -p /tmp/build && cd /tmp/build \
-	&& curl -sSL https://github.com/edenhill/librdkafka/archive/v1.1.0.zip > librdkafka.zip \
+	&& curl -sSL https://github.com/edenhill/librdkafka/archive/v1.5.3.zip > librdkafka.zip \
 	&& unzip librdkafka.zip && rm -f librdkafka.zip \
-	&& cd librdkafka-1.1.0 \
+	&& cd librdkafka-1.5.3 \
 	&& ./configure && make && make install \
-	&& cd .. && rm -rf librdkafka-1.1.0 \
+	&& cd .. && rm -rf librdkafka-1.5.3 \
 	&& mkdir -p /tmp/build && cd /tmp/build \
 	&& curl -sSL http://pecl.php.net/get/rdkafka-${PHP_RDKAFKA_VER}.tgz > rdkafka.tgz \
 	&& tar -zxf rdkafka.tgz && rm -f rdkafka.tgz \
@@ -243,17 +251,17 @@ RUN	echo 'Package: php*' > /etc/apt/preferences.d/no-debian-php \
 	&& echo "extension=jansson.so" > $PHP_INI_DIR/conf.d/99-jansson.ini \
 	&& cd / && rm -rf /tmp/build \
 # Google Protobuf
-	&& echo "Installing Gogle Protobuf" \
-	&& mkdir -p /tmp/build \
-	&& cd /tmp/build \
-	&& curl -OL https://github.com/google/protobuf/releases/download/v${PROTOBUF_VER}/protobuf-php-${PROTOBUF_VER}.tar.gz \
-	&& tar -zxf protobuf-php-${PROTOBUF_VER}.tar.gz && rm -f protobuf-php-${PROTOBUF_VER}.tar.gz \
-	&& cd protobuf-${PROTOBUF_VER} \
-	&& DIST_LANG=php ./configure && DIST_LANG=php make -j 4 && DIST_LANG=php make install \
-	&& cd php/ext/google/protobuf \
-	&& phpize && ./configure && DIST_LANG=php make && DIST_LANG=php make install \
-	&& echo "extension=protobuf.so" > $PHP_INI_DIR/conf.d/99-protobuf.ini \
-	&& cd / && rm -rf /tmp/build \
+#	&& echo "Installing Gogle Protobuf" \
+#	&& mkdir -p /tmp/build \
+#	&& cd /tmp/build \
+#	&& curl -OL https://github.com/google/protobuf/releases/download/v${PROTOBUF_VER}/protobuf-php-${PROTOBUF_VER}.tar.gz \
+#	&& tar -zxf protobuf-php-${PROTOBUF_VER}.tar.gz && rm -f protobuf-php-${PROTOBUF_VER}.tar.gz \
+#	&& cd protobuf-${PROTOBUF_VER} \
+#	&& DIST_LANG=php ./configure && DIST_LANG=php make -j 4 && DIST_LANG=php make install \
+#	&& cd php/ext/google/protobuf \
+#	&& phpize && ./configure && DIST_LANG=php make && DIST_LANG=php make install \
+#	&& echo "extension=protobuf.so" > $PHP_INI_DIR/conf.d/99-protobuf.ini \
+#	&& cd / && rm -rf /tmp/build \
 # Enable OPCache
 	&& echo "zend_extension=opcache.so" > $PHP_INI_DIR/conf.d/01-opcache.ini \
 # Cleanup

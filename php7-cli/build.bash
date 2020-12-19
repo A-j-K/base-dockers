@@ -20,8 +20,8 @@ TAG_VER="4"
 
 if [[ -z $1 || -z $2 || -z $3 ]]; then
 	PHP_VER_MAJOR="7"
-	PHP_VER_MINOR="3"
-	PHP_VER_PATCH="9"
+	PHP_VER_MINOR="4"
+	PHP_VER_PATCH="13"
 else
 	PHP_VER_MAJOR=$1
 	PHP_VER_MINOR=$2

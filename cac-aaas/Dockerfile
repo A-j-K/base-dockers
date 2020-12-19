@@ -24,7 +24,8 @@ ENV PKGS \
 	libsvn-dev \
 	libsvncpp-dev \
 	libsvncpp3 \
-	libsvn1 
+	libsvn1 \
+	groff
 
 COPY files/aws-cli-fed-requirements.txt /root/aws-cli-fed-requirements.txt
 
