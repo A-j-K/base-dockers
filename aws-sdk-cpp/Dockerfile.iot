@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:20.04
 MAINTAINER Andy Kirkham <andy@spiders-lair.com>
 
 ARG AWS_SDK_CPP_VER_MAJOR
@@ -14,7 +14,7 @@ ENV AWS_SDK_CPP_VERSION "${AWS_SDK_CPP_VER}.${AWS_SDK_CPP_VER_PATCH}"
 ARG CMAKE_VER_MAJOR
 ENV CMAKE_VER_MAJOR ${CMAKE_VER_MAJOR:-3}
 ARG CMAKE_VER_MINOR
-ENV CMAKE_VER_MINOR ${CMAKE_VER_MINOR:-10}
+ENV CMAKE_VER_MINOR ${CMAKE_VER_MINOR:-22}
 ARG CMAKE_VER_PATCH
 ENV CMAKE_VER_PATCH ${CMAKE_VER_PATCH:-2}
 
@@ -61,22 +61,6 @@ ENV AWS_SDK_CPP_USEFUL_TOOLS \
 	unzip \
 	git
 
-ENV AWS_BUILD_ONLY \
-	core \
-	s3 \
-	s3-encryption \
-	apigateway \
-	apigatewayv2 \
-	iam \
-	kinesis \
-	sqs \
-	transfer \
-	iot \
-	iot-data \
-	iot-jobs-data \
-	iotevents \
-	iotevents-data
-
 RUN apt-get update \
 	&& apt-get install -y \
 	$AWS_SDK_CPP_BUILD_TOOLS \
@@ -94,20 +78,26 @@ RUN apt-get update \
 	&& mkdir -p /tmp/build/build && cd /tmp/build \
 	&& curl -sSL https://github.com/aws/aws-sdk-cpp/archive/${AWS_SDK_CPP_VERSION}.zip > aws-sdk-cpp-${AWS_SDK_CPP_VERSION}.zip \
 	&& unzip aws-sdk-cpp-${AWS_SDK_CPP_VERSION}.zip \
-	&& rm -f aws-sdk-cpp-${AWS_SDK_CPP_VERSION}.zip \
-	&& cd /tmp/build/build \
+	&& rm -f aws-sdk-cpp-${AWS_SDK_CPP_VERSION}.zip 
+RUN	cd /tmp/build/build \
+	&& cd /tmp && mkdir gh && cd /tmp/gh \
+	&& git clone --recurse-submodules https://github.com/aws/aws-sdk-cpp.git \
+	&& cd aws-sdk-cpp \
+	&& git checkout tags/${AWS_SDK_CPP_VERSION} \
+	&& mkdir build && cd build \
 	&& cmake \
 		-DCMAKE_BUILD_TYPE=Release \
-		-DBUILD_ONLY="${AWS_BUILD_ONLY}" \
+		-DBUILD_ONLY="core;iot;s3;iam" \
 		-DENABLE_TESTING=OFF \
 		-DAUTORUN_UNIT_TESTS=OFF \
 		-DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS} \
-		../aws-sdk-cpp-${AWS_SDK_CPP_VERSION} \
+		.. \
 	&& make \
 	&& make install \
 	&& make clean \
 	&& cd / \
 	&& rm -rf /tmp/build \
+	&& rm -rf /tmp/gh \
 	&& rm -rf /var/lib/apt/lists/* 
 
 
