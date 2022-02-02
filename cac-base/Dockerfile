@@ -40,7 +40,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y $PKGS --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/* 
 
-ENV TF_VERSION="0.12.24"
+ENV TF_VERSION="0.13.6"
 ENV PK_VERSION="1.5.2"
 ENV MV_VERSION="3.6.1"
 ENV ANT_VERSION="1.10.7"
