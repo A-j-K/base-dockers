@@ -30,7 +30,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y $PKGS --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/* 
 
-ENV TF_VERSION="1.3.7"
+ENV TF_VERSION="0.13.6"
+ENV PK_VERSION="1.5.2"
 
 RUN	echo "Loading Terraform ${TF_VERSION}" \
 	&& curl -sSL https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip > terraform.zip \
@@ -42,6 +43,14 @@ RUN	echo "Loading Terraform ${TF_VERSION}" \
 	&& apt-get clean \
 	&& rm -r /var/lib/apt/lists/* \
 	&& mkdir -p /workspace 
+
+RUN	echo "==> Loading Packer ${PK_VERSION}" \
+        && curl -sSL https://releases.hashicorp.com/packer/${PK_VERSION}/packer_${PK_VERSION}_linux_amd64.zip > packer.zip \
+        && unzip packer.zip \
+        && mv packer /usr/local/bin/packer \
+        && chmod 755 /usr/local/bin/packer \
+        && rm -f packer.zip \
+        && echo "===> done." \
 
 WORKDIR /root
 
