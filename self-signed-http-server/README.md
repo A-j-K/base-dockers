@@ -19,6 +19,11 @@ For SSL https connection ````curl "https://localhost:8443"````, this fails (self
 
 For SSL https connection ````curl -k "https://localhost:8443"````, this works (ignore self signed check)
 
+To view the self-signed cert from this image:
+
+    echo | openssl s_client -servername localhost -connect 127.0.0.1:8443 2>/dev/null | openssl x509 -text
+
+
 To stop the container ````docker rm -f SELF````
 
 
