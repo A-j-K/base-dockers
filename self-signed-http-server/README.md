@@ -13,9 +13,9 @@ Use the ````run.sh```` command to run the image.
 
 Note, listens on port 8000 for ordinary non-ssl http and 8443 for self-signed ssl, example
 
-    ````curl "http://localhost:8000"```` for ordinary connection
+For ordinary http connection: ````curl "http://localhost:8000"````
 
-    ````curl "https://localhost:8443"```` for SSL
+For SSL https connection ````curl "https://localhost:8443"````
 
 To stop the container ````docker rm -f SELF````
 
