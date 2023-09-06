@@ -50,7 +50,14 @@ RUN	echo "==> Loading Packer ${PK_VERSION}" \
         && mv packer /usr/local/bin/packer \
         && chmod 755 /usr/local/bin/packer \
         && rm -f packer.zip \
-        && echo "===> done." \
+        && echo "===> done." 
 
-WORKDIR /root
+ARG UNAME=rundeck
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g $GID -o $UNAME
+RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
+RUN mkdir -p /root/rundeck && chown 1000:1000 /root/rundeck
+WORKDIR /root/rundeck
+USER $UNAME
 
