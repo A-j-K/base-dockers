@@ -14,7 +14,7 @@ ordereddict==1.1
 pexpect==4.2.1
 pickleshare==0.7.5
 ptyprocess==0.6.0
-Pygments==2.2.0
+Pygments==2.7.4
 requests==2.22.0
 requests-ntlm==1.0.0
 simplegeneric==0.8.1
